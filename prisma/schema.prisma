@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum SaleStatus {
+  WEB_PENDING // pedido web esperando aprobación (reserva stock)
+  PENDING // pendiente de entrega (stock ya descontado)
+  DELIVERED
+  CANCELLED
+}
+
+enum OrderSource {
+  WEB
+  POS
+}
+
+enum PriceType {
+  NORMAL
+  TRANSFER
+  CUSTOM
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  role         Role     @default(EMPLOYEE)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Customer {
+  id           String    @id @default(cuid())
+  name         String
+  phone        String?
+  email        String?   @unique
+  passwordHash String?
+  address      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  sales        Sale[]
+
+  @@index([deletedAt, name])
+}
+
+model Product {
+  id                String         @id @default(cuid())
+  barcode           String         @unique
+  name              String
+  category          String?
+  type              String?
+  design            String?
+  color             String?
+  size              String?
+  cost              Decimal        @default(0) @db.Decimal(12, 2)
+  priceNormal       Decimal        @default(0) @db.Decimal(12, 2)
+  priceTransfer     Decimal        @default(0) @db.Decimal(12, 2)
+  stock             Int            @default(0)
+  supplierName      String?
+  supplierAddress   String?
+  isPublic          Boolean        @default(false)
+  publicDescription String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  deletedAt         DateTime?
+  images            ProductImage[]
+  saleItems         SaleItem[]
+
+  @@index([deletedAt, isPublic])
+  @@index([deletedAt, name])
+  @@index([category])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  pathname  String
+  position  Int     @default(0)
+
+  @@index([productId, position])
+}
+
+model Sale {
+  id            String      @id @default(cuid())
+  number        Int         @unique @default(autoincrement())
+  customerId    String?
+  customer      Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerName  String
+  customerPhone String?
+  date          DateTime    @default(now())
+  totalAmount   Decimal     @db.Decimal(12, 2)
+  source        OrderSource @default(POS)
+  status        SaleStatus  @default(PENDING)
+  deliveredAt   DateTime?
+  cancelledAt   DateTime?
+  items         SaleItem[]
+
+  @@index([status, date])
+  @@index([customerId])
+}
+
+model SaleItem {
+  id          String    @id @default(cuid())
+  saleId      String
+  sale        Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+  barcode     String
+  name        String
+  quantity    Int
+  priceAtSale Decimal   @db.Decimal(12, 2)
+  costAtSale  Decimal   @db.Decimal(12, 2)
+  priceType   PriceType @default(NORMAL)
+  isPreOrder  Boolean   @default(false)
+
+  @@index([saleId])
+  @@index([productId])
+}
