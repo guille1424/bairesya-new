@@ -62,6 +62,16 @@ Las fotos de productos necesitan `BLOB_READ_WRITE_TOKEN` (de un Blob store de Ve
 
 > Si los deploys de preview comparten la base con producción, también aplican migraciones sobre ella. Para evitarlo, conectá una base distinta para el entorno Preview.
 
+## Catálogo de muestra
+
+`npm run db:demo` carga 20 modelos de ejemplo (54 combinaciones de talle y color) con ilustraciones en `public/demo`, para mostrar la tienda. Usan códigos `DEMO-…`. Antes de lanzar con productos reales se quitan con:
+
+```bash
+npm run db:demo -- --remove
+```
+
+Con `DATABASE_URL` apuntando a la base que corresponda. Después de cargar o quitar, el catálogo tarda alrededor de un minuto en actualizarse (o se actualiza al instante con un nuevo deploy).
+
 ## Reglas de negocio
 
 - **Caja:** si se vende más de lo que hay en stock, la diferencia queda como *pre-pedido* y aparece en la **lista de compras** agrupada por proveedor. El stock se descuenta en una transacción.

@@ -1,0 +1,146 @@
+{
+  "note": "Catálogo de muestra. Códigos DEMO-*. Cargar: npm run db:demo · Quitar: npm run db:demo -- --remove",
+  "suppliers": {
+    "flores": ["Taller Flores", "Av. Avellaneda 2850, Flores"],
+    "once": ["Distribuidora Once", "Av. Pueyrredón 120, Once"],
+    "denim": ["Denim Lab", "Gaona 3120, Flores"],
+    "accesorios": ["Accesorios Palermo", "Honduras 4800, Palermo"]
+  },
+  "models": [
+    {
+      "code": "01", "name": "Remera Oversize Essential", "category": "Remeras", "type": "Oversize", "kind": "oversize", "mark": true,
+      "price": 28000, "cost": 12500, "supplier": "flores",
+      "description": "Remera oversize de algodón peinado 24/1, calce amplio y hombro caído. Logo BairesYa estampado en el pecho.",
+      "variants": [
+        { "color": "Negro", "hex": "#1f1f23", "sizes": { "S": 4, "M": 7, "L": 5, "XL": 2 } },
+        { "color": "Blanco", "hex": "#f4f4f1", "sizes": { "M": 6, "L": 4 } }
+      ]
+    },
+    {
+      "code": "02", "name": "Remera Boxy Fit Buenos Aires", "category": "Remeras", "type": "Boxy fit", "kind": "tee", "print": "Buenos Aires",
+      "price": 32000, "cost": 14000, "supplier": "flores",
+      "description": "Remera de corte boxy con estampa \"Buenos Aires\" en tipografía serif. Algodón pesado, no se deforma con los lavados.",
+      "variants": [{ "color": "Gris melange", "hex": "#b8b8bc", "sizes": { "S": 3, "M": 5, "L": 4 } }]
+    },
+    {
+      "code": "03", "name": "Remera Básica Algodón Peinado", "category": "Remeras", "type": "Regular", "kind": "tee",
+      "price": 22000, "cost": 9000, "supplier": "once",
+      "description": "La básica que combina con todo. Cuello redondo con ribete reforzado.",
+      "variants": [
+        { "color": "Azul marino", "hex": "#1e2a4a", "sizes": { "M": 6, "L": 6 } },
+        { "color": "Verde militar", "hex": "#4b5a3a", "sizes": { "M": 3, "L": 2 } }
+      ]
+    },
+    {
+      "code": "04", "name": "Musculosa Rib", "category": "Remeras", "type": "Musculosa", "kind": "tank",
+      "price": 18000, "cost": 7500, "supplier": "once",
+      "description": "Musculosa de morley acanalado, ajustada al cuerpo. Ideal para el verano o para usar debajo de una camisa abierta.",
+      "variants": [{ "color": "Blanco", "hex": "#f4f4f1", "sizes": { "S": 5, "M": 5 } }]
+    },
+    {
+      "code": "05", "name": "Camisa de Lino Manga Larga", "category": "Camisas", "type": "Lino", "kind": "shirt",
+      "price": 48000, "cost": 21000, "supplier": "flores",
+      "description": "Camisa de lino con botones de nácar. Fresca, liviana y con calce relajado.",
+      "variants": [{ "color": "Beige", "hex": "#d8c7a8", "sizes": { "M": 3, "L": 3 } }]
+    },
+    {
+      "code": "06", "name": "Camisa Denim Clásica", "category": "Camisas", "type": "Denim", "kind": "shirt",
+      "price": 52000, "cost": 23000, "supplier": "denim",
+      "description": "Camisa de jean liviano lavado celeste. Se usa cerrada o abierta como campera.",
+      "variants": [{ "color": "Celeste", "hex": "#8fb3d9", "sizes": { "M": 4, "L": 2 } }]
+    },
+    {
+      "code": "07", "name": "Buzo Hoodie Frisa Premium", "category": "Buzos", "type": "Hoodie", "kind": "hoodie", "mark": true,
+      "price": 62000, "cost": 28000, "supplier": "flores",
+      "description": "Buzo con capucha de frisa invisible 380 g. Bolsillo canguro, puños y cintura con rib.",
+      "variants": [
+        { "color": "Negro", "hex": "#1f1f23", "sizes": { "M": 5, "L": 4, "XL": 2 } },
+        { "color": "Gris melange", "hex": "#b8b8bc", "sizes": { "M": 3, "L": 3 } }
+      ]
+    },
+    {
+      "code": "08", "name": "Buzo Cuello Redondo Frisa", "category": "Buzos", "type": "Crewneck", "kind": "crewneck", "mark": true,
+      "price": 54000, "cost": 24000, "supplier": "flores",
+      "description": "Buzo crewneck de frisa con logo bordado. Abrigado sin ser pesado.",
+      "variants": [{ "color": "Verde militar", "hex": "#4b5a3a", "sizes": { "M": 4, "L": 3 } }]
+    },
+    {
+      "code": "09", "name": "Buzo Hoodie Cropped", "category": "Buzos", "type": "Cropped", "kind": "cropped", "mark": true,
+      "price": 56000, "cost": 25000, "supplier": "flores",
+      "description": "Hoodie corto a la cintura, ideal con jeans de tiro alto.",
+      "variants": [
+        { "color": "Lila", "hex": "#b9a6d9", "sizes": { "S": 3, "M": 3 } },
+        { "color": "Rosa", "hex": "#f2b8c6", "sizes": { "S": 2, "M": 2 } }
+      ]
+    },
+    {
+      "code": "10", "name": "Campera Puffer Liviana", "category": "Camperas", "type": "Puffer", "kind": "puffer",
+      "price": 98000, "cost": 46000, "supplier": "once",
+      "description": "Campera inflada ultraliviana, repelente al agua. Se guarda en su propio bolsillo.",
+      "variants": [{ "color": "Negro", "hex": "#1f1f23", "sizes": { "M": 3, "L": 2 } }]
+    },
+    {
+      "code": "11", "name": "Campera Rompeviento Reflectiva", "category": "Camperas", "type": "Rompeviento", "kind": "windbreaker",
+      "price": 75000, "cost": 34000, "supplier": "once",
+      "description": "Rompeviento con capucha guardable y franjas reflectivas para la noche.",
+      "variants": [{ "color": "Azul marino", "hex": "#1e2a4a", "sizes": { "M": 1, "L": 2 } }]
+    },
+    {
+      "code": "12", "name": "Campera de Jean Clásica", "category": "Camperas", "type": "Denim", "kind": "jacket",
+      "price": 85000, "cost": 39000, "supplier": "denim",
+      "description": "La campera de jean de siempre: bolsillos con tapa, botones metálicos y lavado medio.",
+      "variants": [{ "color": "Azul jean", "hex": "#3b5b8c", "sizes": { "M": 0, "L": 2 } }]
+    },
+    {
+      "code": "13", "name": "Jean Mom Tiro Alto", "category": "Jeans", "type": "Mom", "kind": "jeans",
+      "price": 64000, "cost": 29000, "supplier": "denim",
+      "description": "Jean rígido de tiro alto, pierna recta que se afina abajo. Lavado celeste.",
+      "variants": [{ "color": "Celeste", "hex": "#8fb3d9", "sizes": { "36": 3, "38": 5, "40": 4 } }]
+    },
+    {
+      "code": "14", "name": "Jean Baggy Wide Leg", "category": "Jeans", "type": "Baggy", "kind": "jeans", "options": { "wide": true },
+      "price": 68000, "cost": 31000, "supplier": "denim",
+      "description": "Jean ancho de pierna amplia, calce relajado y ruedo largo.",
+      "variants": [{ "color": "Azul jean", "hex": "#3b5b8c", "sizes": { "38": 3, "40": 4, "42": 2 } }]
+    },
+    {
+      "code": "15", "name": "Jogger Cargo Gabardina", "category": "Pantalones", "type": "Cargo", "kind": "jogger", "options": { "cargo": true },
+      "price": 58000, "cost": 26000, "supplier": "once",
+      "description": "Jogger de gabardina con bolsillos cargo laterales y puño elastizado.",
+      "variants": [
+        { "color": "Verde militar", "hex": "#4b5a3a", "sizes": { "M": 4, "L": 3 } },
+        { "color": "Beige", "hex": "#d8c7a8", "sizes": { "M": 2, "L": 2 } }
+      ]
+    },
+    {
+      "code": "16", "name": "Jogger Frisa Básico", "category": "Pantalones", "type": "Jogger", "kind": "jogger",
+      "price": 42000, "cost": 18000, "supplier": "flores",
+      "description": "Pantalón de frisa con cintura y puños elastizados. El más cómodo del local.",
+      "variants": [{ "color": "Gris melange", "hex": "#b8b8bc", "sizes": { "M": 6, "L": 5 } }]
+    },
+    {
+      "code": "17", "name": "Pantalón Sastrero Recto", "category": "Pantalones", "type": "Sastrero", "kind": "trousers",
+      "price": 59000, "cost": 27000, "supplier": "once",
+      "description": "Pantalón de vestir de pierna recta con pinzas. Para combinar con zapatillas o mocasines.",
+      "variants": [{ "color": "Negro", "hex": "#1f1f23", "sizes": { "38": 3, "40": 3 } }]
+    },
+    {
+      "code": "18", "name": "Short Cargo", "category": "Shorts", "type": "Cargo", "kind": "shorts",
+      "price": 38000, "cost": 16000, "supplier": "once",
+      "description": "Short de gabardina con bolsillos cargo, largo a la rodilla.",
+      "variants": [{ "color": "Beige", "hex": "#d8c7a8", "sizes": { "M": 4, "L": 3 } }]
+    },
+    {
+      "code": "19", "name": "Gorra Trucker BairesYa", "category": "Accesorios", "type": "Gorra", "kind": "cap", "mark": true, "options": { "trucker": true },
+      "price": 19000, "cost": 7000, "supplier": "accesorios",
+      "description": "Gorra trucker con frente de espuma y logo BairesYa. Regulable atrás.",
+      "variants": [{ "color": "Negro", "hex": "#1f1f23", "sizes": { "Único": 2 } }]
+    },
+    {
+      "code": "20", "name": "Gorra Dad Hat Bordada", "category": "Accesorios", "type": "Gorra", "kind": "cap", "mark": true,
+      "price": 21000, "cost": 8000, "supplier": "accesorios",
+      "description": "Gorra de gabardina lavada, visera curva y logo bordado al frente.",
+      "variants": [{ "color": "Beige", "hex": "#d8c7a8", "sizes": { "Único": 6 } }]
+    }
+  ]
+}

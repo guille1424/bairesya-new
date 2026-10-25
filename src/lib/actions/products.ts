@@ -8,7 +8,9 @@ import { productSchema } from "@/lib/validators/products";
 import { fieldErrors, toActionError } from "./utils";
 import type { ActionState } from "./types";
 
-async function deleteBlobs(pathnames: string[]) {
+async function deleteBlobs(all: string[]) {
+  // Solo las subidas a Blob; las imágenes de muestra (public/demo) son archivos del sitio.
+  const pathnames = all.filter((p) => p.startsWith("productos/"));
   if (pathnames.length === 0 || !process.env.BLOB_READ_WRITE_TOKEN) return;
   try {
     await del(pathnames);

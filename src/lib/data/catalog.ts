@@ -4,6 +4,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { webReservations } from "@/lib/services/orders";
 import { availableForWeb } from "@/lib/domain/orders";
+import { compareSizes } from "@/lib/sizes";
 import type { Prisma } from "@/generated/prisma/client";
 
 export const CATALOG_PAGE_SIZE = 24;
@@ -76,7 +77,7 @@ function groupModels(items: CatalogProduct[]) {
       price: Math.min(...variants.map((v) => v.price)),
       priceVaries: new Set(variants.map((v) => v.price)).size > 1,
       available: variants.reduce((s, v) => s + v.available, 0),
-      sizes: uniq(variants.flatMap((v) => v.sizes)),
+      sizes: uniq(variants.flatMap((v) => v.sizes)).sort(compareSizes),
       colors: uniq(variants.flatMap((v) => v.colors)),
     };
   });
@@ -199,7 +200,9 @@ export async function getPublicProduct(barcode: string): Promise<ProductDetail |
     type: product.type,
     design: product.design,
     images: product.images.map((i) => i.url),
-    variants: variants.map((v) => ({ barcode: v.barcode, size: v.size, color: v.color, available: v.available })),
+    variants: variants
+      .map((v) => ({ barcode: v.barcode, size: v.size, color: v.color, available: v.available }))
+      .sort((a, b) => compareSizes(a.size, b.size)),
   };
 }
 
