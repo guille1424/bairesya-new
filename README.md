@@ -50,8 +50,10 @@ Las fotos de productos necesitan `BLOB_READ_WRITE_TOKEN` (de un Blob store de Ve
 2. En **Storage** del proyecto, agregar **Prisma Postgres** (carga `DATABASE_URL`) y **Blob** (carga `BLOB_READ_WRITE_TOKEN`).
 3. En **Settings → Environment Variables**, agregar:
    - `SESSION_SECRET`: `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`
-   - `NEXT_PUBLIC_WHATSAPP_NUMBER`: número de la tienda, ej. `5491112345678`
-   - `NEXT_PUBLIC_SITE_URL`: dominio final, ej. `https://bairesya.com`
+   - `WHATSAPP_NUMBER`: número de la tienda, ej. `5491112345678`
+   - `SITE_URL` (opcional): dominio final, ej. `https://bairesya.com`. Si no está, se usa el dominio de producción de Vercel.
+
+   Estas dos también se aceptan con prefijo `NEXT_PUBLIC_`. Se leen al compilar, así que después de cambiarlas hay que volver a deployar.
 4. Deploy. El script `vercel-build` aplica las migraciones (`prisma migrate deploy`) antes de compilar.
 5. Crear el admin una sola vez, apuntando a la base de producción:
    ```bash
