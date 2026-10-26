@@ -64,7 +64,7 @@ Las fotos de productos necesitan `BLOB_READ_WRITE_TOKEN` (de un Blob store de Ve
 
 ## Catálogo de muestra
 
-`npm run db:demo` carga 25 modelos de ejemplo de las tres colecciones (77 combinaciones de talle y color) con ilustraciones en `public/demo`, para mostrar la tienda. Usan códigos `DEMO-…`. Antes de lanzar con productos reales se quitan con:
+`npm run db:demo` carga 25 modelos de ejemplo de las tres colecciones (70 combinaciones de talle y color) con fotos reales de [Pexels](https://www.pexels.com/license/) en `public/catalogo` (uso comercial gratuito; el detalle de cada foto está en `public/catalogo/CREDITOS.md`). Las fotos de portada están en `public/brand`. Usan códigos `DEMO-…`. Antes de lanzar con productos reales se quitan con:
 
 ```bash
 npm run db:demo -- --remove

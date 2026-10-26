@@ -1,4 +1,4 @@
-const items = ["Deportivo", "Urbano", "Formal", "Nueva temporada", "Talles reales", "Pedí por WhatsApp", "Hecho para Buenos Aires"];
+const items = ["Moda mujer", "Deportivo", "Urbano", "Formal", "Nueva temporada", "Talles reales", "Pedí por WhatsApp", "Hecho en Buenos Aires"];
 
 /** Franja animada de marca (se detiene si el usuario prefiere menos movimiento). */
 export function Marquee() {

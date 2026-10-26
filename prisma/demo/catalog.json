@@ -1,5 +1,5 @@
 {
-  "note": "Catálogo de muestra (25 modelos). Códigos DEMO-*. Cargar: npm run db:demo · Quitar: npm run db:demo -- --remove",
+  "note": "Catálogo de muestra (25 modelos) con fotos de Pexels. Códigos DEMO-*. Cargar: npm run db:demo · Quitar: npm run db:demo -- --remove",
   "suppliers": {
     "flores": [
       "Taller Flores",
@@ -32,8 +32,6 @@
       "name": "Remera Oversize Essential",
       "category": "Remeras",
       "type": "Oversize",
-      "kind": "oversize",
-      "mark": true,
       "price": 28000,
       "cost": 12500,
       "supplier": "flores",
@@ -41,7 +39,7 @@
       "variants": [
         {
           "color": "Negro",
-          "hex": "#1f1f23",
+          "photo": 9558588,
           "sizes": {
             "S": 4,
             "M": 7,
@@ -51,7 +49,7 @@
         },
         {
           "color": "Blanco",
-          "hex": "#f4f4f1",
+          "photo": 8217291,
           "sizes": {
             "M": 6,
             "L": 4
@@ -62,19 +60,17 @@
     },
     {
       "code": "02",
-      "name": "Remera Boxy Fit Buenos Aires",
+      "name": "Remera Boxy Fit",
       "category": "Remeras",
       "type": "Boxy fit",
-      "kind": "tee",
-      "print": "Buenos Aires",
       "price": 32000,
       "cost": 14000,
       "supplier": "flores",
-      "description": "Remera de corte boxy con estampa \"Buenos Aires\" en tipografía serif. Algodón pesado, no se deforma con los lavados.",
+      "description": "Remera de corte boxy en algodón pesado, cuello reforzado. No se deforma con los lavados.",
       "variants": [
         {
           "color": "Gris melange",
-          "hex": "#b8b8bc",
+          "photo": 36810865,
           "sizes": {
             "S": 3,
             "M": 5,
@@ -89,7 +85,6 @@
       "name": "Remera Básica Algodón Peinado",
       "category": "Remeras",
       "type": "Regular",
-      "kind": "tee",
       "price": 22000,
       "cost": 9000,
       "supplier": "once",
@@ -97,7 +92,7 @@
       "variants": [
         {
           "color": "Azul marino",
-          "hex": "#1e2a4a",
+          "photo": 16048173,
           "sizes": {
             "M": 6,
             "L": 6
@@ -105,7 +100,7 @@
         },
         {
           "color": "Verde militar",
-          "hex": "#4b5a3a",
+          "photo": 31041770,
           "sizes": {
             "M": 3,
             "L": 2
@@ -119,7 +114,6 @@
       "name": "Musculosa Rib",
       "category": "Remeras",
       "type": "Musculosa",
-      "kind": "tank",
       "price": 18000,
       "cost": 7500,
       "supplier": "once",
@@ -127,7 +121,7 @@
       "variants": [
         {
           "color": "Blanco",
-          "hex": "#f4f4f1",
+          "photo": 26955631,
           "sizes": {
             "S": 5,
             "M": 5
@@ -141,7 +135,6 @@
       "name": "Camisa de Lino Manga Larga",
       "category": "Camisas",
       "type": "Lino",
-      "kind": "shirt",
       "price": 48000,
       "cost": 21000,
       "supplier": "flores",
@@ -149,7 +142,7 @@
       "variants": [
         {
           "color": "Beige",
-          "hex": "#d8c7a8",
+          "photo": 22441297,
           "sizes": {
             "M": 3,
             "L": 3
@@ -163,7 +156,6 @@
       "name": "Camisa Denim Clásica",
       "category": "Camisas",
       "type": "Denim",
-      "kind": "shirt",
       "price": 52000,
       "cost": 23000,
       "supplier": "denim",
@@ -171,7 +163,7 @@
       "variants": [
         {
           "color": "Celeste",
-          "hex": "#8fb3d9",
+          "photo": 16061219,
           "sizes": {
             "M": 4,
             "L": 2
@@ -185,8 +177,6 @@
       "name": "Buzo Hoodie Frisa Premium",
       "category": "Buzos",
       "type": "Hoodie",
-      "kind": "hoodie",
-      "mark": true,
       "price": 62000,
       "cost": 28000,
       "supplier": "flores",
@@ -194,7 +184,7 @@
       "variants": [
         {
           "color": "Negro",
-          "hex": "#1f1f23",
+          "photo": 37804953,
           "sizes": {
             "M": 5,
             "L": 4,
@@ -203,7 +193,7 @@
         },
         {
           "color": "Gris melange",
-          "hex": "#b8b8bc",
+          "photo": 6311646,
           "sizes": {
             "M": 3,
             "L": 3
@@ -217,16 +207,14 @@
       "name": "Buzo Cuello Redondo Frisa",
       "category": "Buzos",
       "type": "Crewneck",
-      "kind": "crewneck",
-      "mark": true,
       "price": 54000,
       "cost": 24000,
       "supplier": "flores",
       "description": "Buzo crewneck de frisa con logo bordado. Abrigado sin ser pesado.",
       "variants": [
         {
-          "color": "Verde militar",
-          "hex": "#4b5a3a",
+          "color": "Verde",
+          "photo": 20580994,
           "sizes": {
             "M": 4,
             "L": 3
@@ -240,24 +228,22 @@
       "name": "Buzo Hoodie Cropped",
       "category": "Buzos",
       "type": "Cropped",
-      "kind": "cropped",
-      "mark": true,
       "price": 56000,
       "cost": 25000,
       "supplier": "flores",
       "description": "Hoodie corto a la cintura, ideal con jeans de tiro alto.",
       "variants": [
         {
-          "color": "Lila",
-          "hex": "#b9a6d9",
+          "color": "Bordó",
+          "photo": 6116455,
           "sizes": {
             "S": 3,
             "M": 3
           }
         },
         {
-          "color": "Rosa",
-          "hex": "#f2b8c6",
+          "color": "Negro",
+          "photo": 7321033,
           "sizes": {
             "S": 2,
             "M": 2
@@ -271,7 +257,6 @@
       "name": "Campera Puffer Liviana",
       "category": "Camperas",
       "type": "Puffer",
-      "kind": "puffer",
       "price": 98000,
       "cost": 46000,
       "supplier": "once",
@@ -279,7 +264,7 @@
       "variants": [
         {
           "color": "Negro",
-          "hex": "#1f1f23",
+          "photo": 36018377,
           "sizes": {
             "M": 3,
             "L": 2
@@ -290,18 +275,17 @@
     },
     {
       "code": "11",
-      "name": "Campera Rompeviento Reflectiva",
+      "name": "Campera Rompeviento Anorak",
       "category": "Camperas",
       "type": "Rompeviento",
-      "kind": "windbreaker",
       "price": 75000,
       "cost": 34000,
       "supplier": "once",
-      "description": "Rompeviento con capucha guardable y franjas reflectivas para la noche.",
+      "description": "Rompeviento tipo anorak con capucha, medio cierre y cordones de ajuste. Liviano y repelente al agua.",
       "variants": [
         {
-          "color": "Azul marino",
-          "hex": "#1e2a4a",
+          "color": "Gris",
+          "photo": 6778570,
           "sizes": {
             "M": 1,
             "L": 2
@@ -315,7 +299,6 @@
       "name": "Campera de Jean Clásica",
       "category": "Camperas",
       "type": "Denim",
-      "kind": "jacket",
       "price": 85000,
       "cost": 39000,
       "supplier": "denim",
@@ -323,7 +306,7 @@
       "variants": [
         {
           "color": "Azul jean",
-          "hex": "#3b5b8c",
+          "photo": 16428589,
           "sizes": {
             "M": 0,
             "L": 2
@@ -337,7 +320,6 @@
       "name": "Jean Mom Tiro Alto",
       "category": "Jeans",
       "type": "Mom",
-      "kind": "jeans",
       "price": 64000,
       "cost": 29000,
       "supplier": "denim",
@@ -345,7 +327,7 @@
       "variants": [
         {
           "color": "Celeste",
-          "hex": "#8fb3d9",
+          "photo": 17515363,
           "sizes": {
             "36": 3,
             "38": 5,
@@ -360,18 +342,14 @@
       "name": "Jean Baggy Wide Leg",
       "category": "Jeans",
       "type": "Baggy",
-      "kind": "jeans",
-      "options": {
-        "wide": true
-      },
       "price": 68000,
       "cost": 31000,
       "supplier": "denim",
       "description": "Jean ancho de pierna amplia, calce relajado y ruedo largo.",
       "variants": [
         {
-          "color": "Azul jean",
-          "hex": "#3b5b8c",
+          "color": "Celeste",
+          "photo": 18418773,
           "sizes": {
             "38": 3,
             "40": 4,
@@ -386,10 +364,6 @@
       "name": "Jogger Cargo Gabardina",
       "category": "Pantalones",
       "type": "Cargo",
-      "kind": "jogger",
-      "options": {
-        "cargo": true
-      },
       "price": 58000,
       "cost": 26000,
       "supplier": "once",
@@ -397,15 +371,15 @@
       "variants": [
         {
           "color": "Verde militar",
-          "hex": "#4b5a3a",
+          "photo": 16983209,
           "sizes": {
             "M": 4,
             "L": 3
           }
         },
         {
-          "color": "Beige",
-          "hex": "#d8c7a8",
+          "color": "Gris",
+          "photo": 12384601,
           "sizes": {
             "M": 2,
             "L": 2
@@ -419,7 +393,6 @@
       "name": "Jogger Frisa Básico",
       "category": "Pantalones",
       "type": "Jogger",
-      "kind": "jogger",
       "price": 42000,
       "cost": 18000,
       "supplier": "flores",
@@ -427,7 +400,7 @@
       "variants": [
         {
           "color": "Gris melange",
-          "hex": "#b8b8bc",
+          "photo": 39457507,
           "sizes": {
             "M": 6,
             "L": 5
@@ -441,7 +414,6 @@
       "name": "Pantalón Sastrero Recto",
       "category": "Pantalones",
       "type": "Sastrero",
-      "kind": "trousers",
       "price": 59000,
       "cost": 27000,
       "supplier": "once",
@@ -449,7 +421,7 @@
       "variants": [
         {
           "color": "Negro",
-          "hex": "#1f1f23",
+          "photo": 32279880,
           "sizes": {
             "38": 3,
             "40": 3
@@ -460,18 +432,17 @@
     },
     {
       "code": "18",
-      "name": "Short Cargo",
+      "name": "Short Lino Tiro Alto",
       "category": "Shorts",
       "type": "Cargo",
-      "kind": "shorts",
       "price": 38000,
       "cost": 16000,
       "supplier": "once",
-      "description": "Short de gabardina con bolsillos cargo, largo a la rodilla.",
+      "description": "Short de lino de tiro alto con pinzas y bolsillos. Fresco y elegante para el verano.",
       "variants": [
         {
           "color": "Beige",
-          "hex": "#d8c7a8",
+          "photo": 23023816,
           "sizes": {
             "M": 4,
             "L": 3
@@ -482,22 +453,17 @@
     },
     {
       "code": "19",
-      "name": "Gorra Trucker BairesYa",
+      "name": "Gorra Baseball Negra",
       "category": "Accesorios",
       "type": "Gorra",
-      "kind": "cap",
-      "mark": true,
-      "options": {
-        "trucker": true
-      },
       "price": 19000,
       "cost": 7000,
       "supplier": "accesorios",
-      "description": "Gorra trucker con frente de espuma y logo BairesYa. Regulable atrás.",
+      "description": "Gorra de gabardina negra, visera curva y regulable atrás. Va con todo.",
       "variants": [
         {
           "color": "Negro",
-          "hex": "#1f1f23",
+          "photo": 17217486,
           "sizes": {
             "Único": 2
           }
@@ -510,8 +476,6 @@
       "name": "Gorra Dad Hat Bordada",
       "category": "Accesorios",
       "type": "Gorra",
-      "kind": "cap",
-      "mark": true,
       "price": 21000,
       "cost": 8000,
       "supplier": "accesorios",
@@ -519,7 +483,7 @@
       "variants": [
         {
           "color": "Beige",
-          "hex": "#d8c7a8",
+          "photo": 7562957,
           "sizes": {
             "Único": 6
           }
@@ -532,31 +496,18 @@
       "name": "Campera Deportiva Track",
       "category": "Camperas",
       "type": "Track",
-      "kind": "track",
-      "mark": true,
-      "options": {
-        "accent": "#d9f99d"
-      },
       "price": 69000,
       "cost": 31000,
       "supplier": "sport",
-      "description": "Campera de entrenamiento con cierre completo, cuello alto y franjas en las mangas. Tela liviana que no abriga de más.",
+      "description": "Campera deportiva con capucha y cierre, liviana y cortaviento. Para entrenar al aire libre o salir a correr.",
       "variants": [
         {
-          "color": "Negro",
-          "hex": "#1f1f23",
+          "color": "Azul marino",
+          "photo": 8455417,
           "sizes": {
             "S": 3,
             "M": 5,
             "L": 4
-          }
-        },
-        {
-          "color": "Azul marino",
-          "hex": "#1e2a4a",
-          "sizes": {
-            "M": 3,
-            "L": 2
           }
         }
       ],
@@ -567,7 +518,6 @@
       "name": "Calza Deportiva Tiro Alto",
       "category": "Pantalones",
       "type": "Calza",
-      "kind": "leggings",
       "price": 36000,
       "cost": 15000,
       "supplier": "sport",
@@ -575,19 +525,11 @@
       "variants": [
         {
           "color": "Negro",
-          "hex": "#1f1f23",
+          "photo": 6311504,
           "sizes": {
             "S": 5,
             "M": 6,
             "L": 3
-          }
-        },
-        {
-          "color": "Bordó",
-          "hex": "#6b1f2a",
-          "sizes": {
-            "S": 2,
-            "M": 3
           }
         }
       ],
@@ -595,31 +537,17 @@
     },
     {
       "code": "23",
-      "name": "Remera Dry-Fit Training",
+      "name": "Remera Dry-Fit Running",
       "category": "Remeras",
       "type": "Técnica",
-      "kind": "drytee",
-      "mark": true,
-      "options": {
-        "accent": "#c6f432"
-      },
       "price": 29000,
       "cost": 12000,
       "supplier": "sport",
-      "description": "Remera técnica de secado rápido con paneles respirables a los costados. Para correr, el gym o el día a día.",
+      "description": "Remera técnica de secado rápido, liviana y respirable. Para correr, el gym o el día a día.",
       "variants": [
         {
-          "color": "Gris melange",
-          "hex": "#b8b8bc",
-          "sizes": {
-            "M": 6,
-            "L": 5,
-            "XL": 2
-          }
-        },
-        {
-          "color": "Negro",
-          "hex": "#1f1f23",
+          "color": "Blanco",
+          "photo": 5262902,
           "sizes": {
             "M": 4,
             "L": 4
@@ -630,18 +558,17 @@
     },
     {
       "code": "24",
-      "name": "Blazer Slim Fit",
+      "name": "Blazer Sastrero",
       "category": "Sastrería",
       "type": "Blazer",
-      "kind": "blazer",
       "price": 115000,
       "cost": 54000,
       "supplier": "sastreria",
-      "description": "Blazer entallado de una botonadura, con forrería completa. Va con el pantalón sastrero o con jean y zapatillas.",
+      "description": "Blazer entallado con botones al frente. Va con el pantalón sastrero o con jean y zapatillas.",
       "variants": [
         {
           "color": "Azul marino",
-          "hex": "#1e2a4a",
+          "photo": 19985715,
           "sizes": {
             "M": 2,
             "L": 2
@@ -649,7 +576,7 @@
         },
         {
           "color": "Beige",
-          "hex": "#d8c7a8",
+          "photo": 40153814,
           "sizes": {
             "M": 1,
             "L": 2
@@ -663,7 +590,6 @@
       "name": "Chomba Piqué Clásica",
       "category": "Remeras",
       "type": "Chomba",
-      "kind": "polo",
       "price": 34000,
       "cost": 14500,
       "supplier": "sastreria",
@@ -671,15 +597,15 @@
       "variants": [
         {
           "color": "Blanco",
-          "hex": "#f4f4f1",
+          "photo": 7324667,
           "sizes": {
             "M": 4,
             "L": 4
           }
         },
         {
-          "color": "Azul marino",
-          "hex": "#1e2a4a",
+          "color": "Negro",
+          "photo": 6029254,
           "sizes": {
             "M": 3,
             "L": 3
@@ -688,5 +614,13 @@
       ],
       "line": "FORMAL"
     }
-  ]
+  ],
+  "photos": {
+    "source": "Pexels (https://www.pexels.com/license/): uso comercial gratuito, sin atribución obligatoria.",
+    "brand": {
+      "deportivo": 7777271,
+      "urbano": 3395708,
+      "formal": 18505095
+    }
+  }
 }

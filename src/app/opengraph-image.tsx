@@ -30,7 +30,7 @@ export default function OpengraphImage() {
           <span style={{ color: "#c6f432" }}>Vos tampoco.</span>
         </div>
         <div style={{ display: "flex", gap: 24, fontSize: 30, color: "rgba(255,255,255,.7)" }}>
-          <span>Deportivo</span>·<span>Urbano</span>·<span>Formal</span>
+          <span>Moda mujer</span>·<span>Deportivo</span>·<span>Urbano</span>·<span>Formal</span>
         </div>
       </div>
     ),

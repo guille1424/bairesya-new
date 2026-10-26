@@ -1,5 +1,5 @@
 // Carga (o quita con --remove) el catálogo de muestra de prisma/demo/catalog.json.
-// Los productos usan códigos DEMO-* y las imágenes están en public/demo.
+// Los productos usan códigos DEMO-* y las fotos (Pexels) están en public/catalogo.
 import "dotenv/config";
 import { readFileSync } from "node:fs";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -41,6 +41,7 @@ async function remove() {
 async function load() {
   const catalog: Catalog = JSON.parse(readFileSync(new URL("./demo/catalog.json", import.meta.url), "utf8"));
   let rows = 0;
+  const loaded: string[] = [];
   // Fechas escalonadas para que "Más nuevos" tenga un orden natural.
   const base = Date.now() - catalog.models.length * 60_000;
 
@@ -75,12 +76,18 @@ async function load() {
         });
         await prisma.productImage.deleteMany({ where: { productId: product.id } });
         await prisma.productImage.create({
-          data: { productId: product.id, url: `/demo/${file}`, pathname: `demo/${file}`, position: 0 },
+          data: { productId: product.id, url: `/catalogo/${file}`, pathname: `catalogo/${file}`, position: 0 },
         });
+        loaded.push(barcode);
         rows++;
       }
     }
   }
+  // Variantes de muestra que ya no están en el catálogo (por ejemplo, colores cambiados).
+  const { count: removed } = await prisma.product.deleteMany({
+    where: { barcode: { startsWith: "DEMO-", notIn: loaded } },
+  });
+  if (removed) console.log(`Se quitaron ${removed} variantes de muestra que ya no están en el catálogo.`);
   console.log(`Catálogo de muestra listo: ${catalog.models.length} modelos, ${rows} productos (talle/color).`);
 }
 

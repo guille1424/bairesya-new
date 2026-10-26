@@ -24,7 +24,7 @@ export function Hero() {
         <div className="space-y-7">
           <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium tracking-wide text-white/80 uppercase">
             <span className="size-1.5 rounded-full bg-brand-lime" />
-            Nueva temporada · Primavera–Verano 26/27
+            Moda mujer · Primavera–Verano 26/27
           </p>
           <h1 className="font-display text-[clamp(3.25rem,9.5vw,7.25rem)] leading-[0.95] tracking-tight uppercase">
             La ciudad
@@ -34,7 +34,7 @@ export function Hero() {
             <span className="text-brand-lime">Vos tampoco.</span>
           </h1>
           <p className="max-w-lg text-base text-white/70 md:text-lg">
-            Deportivo, urbano y formal. Lo último de la moda para moverte, trabajar y salir, listo para hoy.
+            Moda femenina deportiva, urbana y formal. Lo último en tendencias para moverte, trabajar y salir, lista para hoy.
           </p>
           <div className="flex flex-wrap gap-3">
             <Button asChild size="lg" className="h-12 bg-white px-6 text-zinc-950 hover:bg-white/90">
@@ -66,30 +66,26 @@ export function Hero() {
                 key={line}
                 href={`/?linea=${l.slug}#catalogo`}
                 className={cn(
-                  "group relative flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-2xl p-3 sm:p-4 lg:aspect-auto",
-                  l.tone,
+                  "group relative flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-2xl bg-zinc-800 p-3 sm:p-4 lg:aspect-auto",
                   i === 0 && "lg:col-span-3 lg:row-span-4",
                   i === 1 && "lg:col-span-3 lg:col-start-4 lg:row-span-3 lg:row-start-2",
-                  i === 2 && "lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-5 lg:flex-row lg:items-end",
+                  i === 2 && "lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-5",
                 )}
               >
-                <span className="relative z-10 font-mono text-[10px] tracking-widest uppercase opacity-70 sm:text-xs lg:self-start">
+                <Image
+                  src={l.image}
+                  alt={`Colección ${l.label}`}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 22vw, 30vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20" />
+                <span className={cn("relative z-10 w-fit rounded-full px-2 py-0.5 font-mono text-[10px] font-medium tracking-widest uppercase sm:text-xs", l.tone)}>
                   0{i + 1}
                   <span className="hidden sm:inline"> · {l.moment}</span>
                 </span>
-                <Image
-                  src={l.image}
-                  alt=""
-                  width={900}
-                  height={1200}
-                  priority
-                  sizes="(min-width: 1024px) 22vw, 30vw"
-                  className={cn(
-                    "pointer-events-none absolute inset-x-0 bottom-[16%] mx-auto h-[66%] w-auto object-contain transition-transform duration-500 group-hover:scale-105",
-                    i === 2 && "lg:inset-x-auto lg:right-4 lg:bottom-[6%] lg:h-[88%]",
-                  )}
-                />
-                <span className="relative z-10 flex items-end justify-between font-display text-xl tracking-wide uppercase sm:text-3xl">
+                <span className="relative z-10 flex items-end justify-between font-display text-xl tracking-wide text-white uppercase sm:text-3xl">
                   {l.label}
                   <ArrowRight className="hidden size-5 transition-transform group-hover:translate-x-1 sm:block" />
                 </span>

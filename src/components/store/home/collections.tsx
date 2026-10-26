@@ -18,7 +18,7 @@ export function Collections() {
           </h2>
         </div>
         <p className="max-w-sm text-muted-foreground">
-          A la mañana entrenás, a la tarde la ciudad y a la noche salís. Armamos cada colección para ese momento.
+          A la mañana entrenás, a la tarde la ciudad y a la noche salís. Armamos cada colección para ese momento, pensada para vos.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
@@ -28,26 +28,28 @@ export function Collections() {
             <Link
               key={line}
               href={`/?linea=${l.slug}#catalogo`}
-              className={cn("group relative flex min-h-[26rem] flex-col overflow-hidden rounded-3xl p-6", l.tone)}
+              className="group relative flex min-h-[30rem] flex-col justify-between overflow-hidden rounded-3xl bg-zinc-900 p-6 text-white"
             >
+              <Image
+                src={l.image}
+                alt={`Colección ${l.label}`}
+                fill
+                sizes="(min-width: 768px) 33vw, 100vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="relative z-10 flex items-start justify-between">
-                <span className="font-mono text-xs tracking-widest uppercase opacity-70">
+                <span className={cn("rounded-full px-2.5 py-1 font-mono text-xs font-medium tracking-widest uppercase", l.tone)}>
                   0{i + 1} — {l.moment}
                 </span>
-                <span className="flex size-10 items-center justify-center rounded-full bg-current/10 transition-transform group-hover:rotate-45">
+                <span className="flex size-10 items-center justify-center rounded-full bg-white/15 backdrop-blur transition-transform group-hover:rotate-45">
                   <ArrowUpRight className="size-5" />
                 </span>
               </div>
-              <h3 className="relative z-10 mt-4 font-display text-6xl leading-none tracking-tight uppercase">{l.label}</h3>
-              <p className="relative z-10 mt-3 max-w-[16rem] text-sm opacity-80">{l.description}</p>
-              <Image
-                src={l.image}
-                alt=""
-                width={900}
-                height={1200}
-                sizes="(min-width: 768px) 25vw, 70vw"
-                className="pointer-events-none absolute -right-8 -bottom-10 h-[72%] w-auto object-contain transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-105"
-              />
+              <div className="relative z-10">
+                <h3 className="font-display text-6xl leading-none tracking-tight uppercase">{l.label}</h3>
+                <p className="mt-3 max-w-[18rem] text-sm text-white/80">{l.description}</p>
+              </div>
             </Link>
           );
         })}
