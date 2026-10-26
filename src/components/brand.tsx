@@ -19,7 +19,7 @@ export function BrandLink({ href = "/", className }: { href?: string; className?
   return (
     <Link href={href} className={cn("flex items-center gap-2 font-semibold tracking-tight", className)}>
       <Logo className="w-10" />
-      <span className="text-lg">
+      <span className="font-display text-2xl leading-none tracking-wide uppercase">
         Baires<span className="text-primary">Ya</span>
       </span>
     </Link>

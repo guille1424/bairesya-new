@@ -1,12 +1,14 @@
 import "server-only";
 import ExcelJS from "exceljs";
 import { z } from "zod";
+import { parseLine } from "@/lib/lines";
 
 /** Columnas de la plantilla (mismos nombres que la app anterior). "price" es el costo. */
 const COLUMNS = [
   "barcode",
   "name",
   "category",
+  "line",
   "type",
   "design",
   "color",
@@ -45,6 +47,12 @@ export const importRowSchema = z.object({
     .transform((v) => String(v ?? "").trim())
     .pipe(z.string().min(1, "Falta el nombre").max(160)),
   category: text,
+  line: z.unknown().transform((v, ctx) => {
+    if (v === null || v === undefined || String(v).trim() === "") return null;
+    const line = parseLine(v);
+    if (!line) ctx.addIssue({ code: "custom", message: "Colección inválida (Deportivo, Urbano o Formal)" });
+    return line;
+  }),
   type: text,
   design: text,
   color: text,

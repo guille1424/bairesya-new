@@ -24,6 +24,13 @@ enum OrderSource {
   POS
 }
 
+/// Colección de la tienda: para qué momento del día es la prenda.
+enum Line {
+  DEPORTIVA
+  URBANA
+  FORMAL
+}
+
 enum PriceType {
   NORMAL
   TRANSFER
@@ -60,6 +67,7 @@ model Product {
   barcode           String         @unique
   name              String
   category          String?
+  line              Line?
   type              String?
   design            String?
   color             String?
@@ -81,6 +89,7 @@ model Product {
   @@index([deletedAt, isPublic])
   @@index([deletedAt, name])
   @@index([category])
+  @@index([line])
 }
 
 model ProductImage {

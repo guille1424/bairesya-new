@@ -2,36 +2,33 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { ClearFilters, Pagination, SearchFilter, SelectFilter } from "@/components/admin/url-filters";
+import { Collections, Promises } from "@/components/store/home/collections";
+import { Hero } from "@/components/store/home/hero";
+import { Marquee } from "@/components/store/home/marquee";
 import { ProductCard, ProductGridSkeleton } from "@/components/store/product-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { getCatalog, getCatalogFilters } from "@/lib/data/catalog";
+import { lineFromSlug, lines, lineValues } from "@/lib/lines";
 import { oneOf, pageParam, param, type SearchParams } from "@/lib/search-params";
 import { cn } from "@/lib/utils";
 
 export default function StoreHome({ searchParams }: PageProps<"/">) {
   return (
     <>
-      <section className="relative overflow-hidden border-b bg-zinc-950 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,oklch(0.45_0.22_283/0.6),transparent_55%),radial-gradient(ellipse_at_bottom_right,oklch(0.55_0.2_330/0.35),transparent_50%)]" />
-        <div className="relative mx-auto flex max-w-7xl flex-col gap-5 px-4 py-16 sm:px-6 md:py-24">
-          <span className="w-fit rounded-full border border-white/20 px-3 py-1 text-xs tracking-wide text-white/80 uppercase">
-            Nueva colección
-          </span>
-          <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-balance md:text-6xl">
-            Moda urbana con identidad porteña.
-          </h1>
-          <p className="max-w-xl text-white/70 md:text-lg">
-            Prendas seleccionadas, talles reales y atención directa por WhatsApp. Elegí, armá tu pedido y te lo confirmamos al toque.
-          </p>
+      <Hero />
+      <Marquee />
+      <Collections />
+      <Promises />
+      <section id="catalogo" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6 md:py-20">
+        <div className="mb-8 space-y-3">
+          <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">Catálogo</p>
+          <h2 className="font-display text-5xl leading-none tracking-tight uppercase md:text-6xl">Lo último</h2>
         </div>
-      </section>
-
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <Suspense fallback={<CatalogSkeleton />}>
           <Catalog searchParams={searchParams} />
         </Suspense>
-      </div>
+      </section>
     </>
   );
 }
@@ -49,32 +46,55 @@ function CatalogSkeleton() {
   );
 }
 
+function hrefWith(base: Record<string, string | undefined>, changes: Record<string, string | undefined>) {
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries({ ...base, ...changes })) if (v) params.set(k, v);
+  const qs = params.toString();
+  return `/${qs ? `?${qs}` : ""}#catalogo`;
+}
+
 async function Catalog({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
+  const lineSlug = param(params, "linea");
+  const line = lineFromSlug(lineSlug);
   const query = {
     q: param(params, "q"),
+    line,
     category: param(params, "category"),
     size: param(params, "size"),
     color: param(params, "color"),
     sort: oneOf(param(params, "sort"), ["new", "price", "-price"] as const),
     page: pageParam(params),
   };
-  const [filters, result] = await Promise.all([getCatalogFilters(), getCatalog(query)]);
-  const hasFilters = Boolean(query.q || query.category || query.size || query.color);
+  const [filters, result] = await Promise.all([getCatalogFilters(line), getCatalog(query)]);
+  const hasFilters = Boolean(query.q || query.line || query.category || query.size || query.color);
+  const base = { linea: line ? lineSlug : undefined, category: query.category };
 
   return (
     <div className="space-y-8">
       <div className="space-y-4">
-        <nav className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" aria-label="Categorías">
-          <CategoryChip href="/" active={!query.category}>
+        <nav className="flex flex-wrap gap-2" aria-label="Colecciones">
+          <LineTab href={hrefWith({}, {})} active={!line}>
             Todo
-          </CategoryChip>
-          {filters.categories.map((c) => (
-            <CategoryChip key={c} href={`/?category=${encodeURIComponent(c)}`} active={query.category === c}>
-              {c}
-            </CategoryChip>
+          </LineTab>
+          {lineValues.map((l) => (
+            <LineTab key={l} href={hrefWith({}, { linea: lines[l].slug })} active={line === l}>
+              {lines[l].label}
+            </LineTab>
           ))}
         </nav>
+        {filters.categories.length > 1 && (
+          <nav className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" aria-label="Categorías">
+            <CategoryChip href={hrefWith(base, { category: undefined })} active={!query.category}>
+              Todas las prendas
+            </CategoryChip>
+            {filters.categories.map((c) => (
+              <CategoryChip key={c} href={hrefWith(base, { category: c })} active={query.category === c}>
+                {c}
+              </CategoryChip>
+            ))}
+          </nav>
+        )}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <SearchFilter placeholder="Buscar prendas" />
           <div className="grid grid-cols-3 gap-2 sm:flex">
@@ -90,7 +110,7 @@ async function Catalog({ searchParams }: { searchParams: Promise<SearchParams> }
               ]}
             />
           </div>
-          <ClearFilters keys={["q", "size", "color", "sort", "category"]} />
+          <ClearFilters keys={["q", "size", "color", "sort", "category", "linea"]} />
         </div>
       </div>
 
@@ -108,8 +128,8 @@ async function Catalog({ searchParams }: { searchParams: Promise<SearchParams> }
         </Empty>
       ) : (
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
-          {result.products.map((p, i) => (
-            <ProductCard key={p.id} product={p} priority={i < 4} />
+          {result.products.map((p) => (
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
       )}
@@ -118,10 +138,26 @@ async function Catalog({ searchParams }: { searchParams: Promise<SearchParams> }
   );
 }
 
+function LineTab({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      scroll={false}
+      className={cn(
+        "rounded-full px-3.5 py-1.5 font-display text-base tracking-wide uppercase transition-colors sm:px-5 sm:py-2 sm:text-lg",
+        active ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/70",
+      )}
+    >
+      {children}
+    </Link>
+  );
+}
+
 function CategoryChip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
     <Link
       href={href}
+      scroll={false}
       className={cn(
         "shrink-0 rounded-full border px-4 py-1.5 text-sm transition-colors",
         active ? "border-foreground bg-foreground text-background" : "hover:border-foreground/40",

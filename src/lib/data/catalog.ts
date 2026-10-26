@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { webReservations } from "@/lib/services/orders";
 import { availableForWeb } from "@/lib/domain/orders";
 import { compareSizes } from "@/lib/sizes";
+import type { LineValue } from "@/lib/lines";
 import type { Prisma } from "@/generated/prisma/client";
 
 export const CATALOG_PAGE_SIZE = 24;
@@ -85,6 +86,7 @@ function groupModels(items: CatalogProduct[]) {
 
 export type CatalogQuery = {
   q?: string;
+  line?: LineValue;
   category?: string;
   size?: string;
   color?: string;
@@ -106,6 +108,7 @@ export async function getCatalog(query: CatalogQuery) {
       { color: { contains: query.q, mode: "insensitive" } },
     ];
   }
+  if (query.line) where.line = query.line;
   if (query.category) where.category = query.category;
   if (query.size) where.size = query.size;
   if (query.color) where.color = query.color;
@@ -142,14 +145,14 @@ export async function getCatalog(query: CatalogQuery) {
   };
 }
 
-export async function getCatalogFilters() {
+export async function getCatalogFilters(line?: LineValue) {
   "use cache";
-  cacheLife("hours");
+  cacheLife("minutes");
   cacheTag("catalog");
 
   const distinct = async (field: "category" | "size" | "color") => {
     const rows = await prisma.product.findMany({
-      where: { ...publicWhere, [field]: { not: null } },
+      where: { ...publicWhere, ...(line ? { line } : {}), [field]: { not: null } },
       distinct: [field],
       select: { [field]: true },
       orderBy: { [field]: "asc" },
@@ -157,7 +160,7 @@ export async function getCatalogFilters() {
     return rows.map((r) => (r as unknown as Record<string, string | null>)[field]).filter((v): v is string => Boolean(v));
   };
   const [categories, sizes, colors] = await Promise.all([distinct("category"), distinct("size"), distinct("color")]);
-  return { categories, sizes, colors };
+  return { categories, sizes: sizes.sort(compareSizes), colors };
 }
 
 export type ProductDetail = CatalogProduct & {

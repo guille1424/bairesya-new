@@ -10,6 +10,7 @@ export type ProductRow = {
   barcode: string;
   name: string;
   category: string | null;
+  line: "DEPORTIVA" | "URBANA" | "FORMAL" | null;
   type: string | null;
   design: string | null;
   color: string | null;
@@ -31,6 +32,7 @@ const productSelect = {
   barcode: true,
   name: true,
   category: true,
+  line: true,
   type: true,
   design: true,
   color: true,

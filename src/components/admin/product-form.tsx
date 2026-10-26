@@ -1,17 +1,42 @@
 "use client";
 
-import { useRef, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { Wand2 } from "lucide-react";
 import { FormError, SubmitButton, TextField, useActionForm, useOnActionSuccess } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet, FieldLegend } from "@/components/ui/field";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { lines, lineValues, type LineValue } from "@/lib/lines";
 import { Textarea } from "@/components/ui/textarea";
 import { saveProduct, suggestBarcode } from "@/lib/actions/products";
 import type { ProductRow } from "@/lib/data/products";
 import { ImageUploader } from "./image-uploader";
 
 export type FilterOptions = { categories: string[]; colors: string[]; sizes: string[] };
+
+function LineSelect({ defaultValue }: { defaultValue: LineValue | null }) {
+  const [value, setValue] = useState<string>(defaultValue ?? "NONE");
+  return (
+    <Field>
+      <FieldLabel>Colección</FieldLabel>
+      <input type="hidden" name="line" value={value} />
+      <Select value={value} onValueChange={setValue}>
+        <SelectTrigger className="w-full">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="NONE">Sin colección</SelectItem>
+          {lineValues.map((l) => (
+            <SelectItem key={l} value={l}>
+              {lines[l].label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </Field>
+  );
+}
 
 export function ProductForm({
   product,
@@ -76,7 +101,10 @@ export function ProductForm({
             <TextField label="Talle" name="size" list="dl-sizes" defaultValue={product?.size ?? ""} state={state} />
             <TextField label="Color" name="color" list="dl-colors" defaultValue={product?.color ?? ""} state={state} />
           </div>
-          <TextField label="Diseño" name="design" defaultValue={product?.design ?? ""} state={state} />
+          <div className="grid grid-cols-2 gap-4">
+            <TextField label="Diseño" name="design" defaultValue={product?.design ?? ""} state={state} />
+            <LineSelect defaultValue={product?.line ?? null} />
+          </div>
         </FieldGroup>
       </FieldSet>
 

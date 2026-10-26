@@ -11,6 +11,7 @@ type Catalog = {
     code: string;
     name: string;
     category: string;
+    line: "DEPORTIVA" | "URBANA" | "FORMAL";
     type: string;
     price: number;
     cost: number;
@@ -52,6 +53,7 @@ async function load() {
         const data = {
           name: model.name,
           category: model.category,
+          line: model.line,
           type: model.type,
           color: variant.color,
           size,

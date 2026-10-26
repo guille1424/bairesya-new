@@ -12,6 +12,7 @@ const columns = [
   ["barcode", "Código de barras único", true],
   ["name", "Nombre del producto", true],
   ["category", "Categoría (ej: Remera, Pantalón)", false],
+  ["line", "Colección: Deportivo, Urbano o Formal", false],
   ["size", "Talle (ej: S, M, L, 32)", false],
   ["color", "Color", false],
   ["type / design", "Tipo y diseño", false],

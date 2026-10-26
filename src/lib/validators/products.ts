@@ -20,6 +20,7 @@ export const productSchema = z.object({
   barcode: z.string().trim().min(1, "El código es obligatorio").max(64),
   name: z.string().trim().min(1, "El nombre es obligatorio").max(160),
   category: optionalText(),
+  line: z.preprocess((v) => (v === "" || v === "NONE" ? null : v), z.enum(["DEPORTIVA", "URBANA", "FORMAL"]).nullish()),
   type: optionalText(),
   design: optionalText(),
   color: optionalText(),
