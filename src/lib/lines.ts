@@ -11,7 +11,7 @@ export const lines: Record<
     moment: "Para moverte",
     description: "Calzas, buzos y prendas técnicas para entrenar y moverte todo el día.",
     image: "/brand/foto-deportivo.webp",
-    tone: "bg-[oklch(0.93_0.2_125)] text-zinc-950",
+    tone: "bg-black text-white",
   },
   URBANA: {
     slug: "urbano",

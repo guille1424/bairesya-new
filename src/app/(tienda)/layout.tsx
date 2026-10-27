@@ -32,46 +32,46 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
         }
       />
       <main className="flex-1">{children}</main>
-      <footer className="bg-zinc-950 text-white">
+      <footer className="bg-cement text-brand-ink">
         <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6">
-          <p className="font-display text-[clamp(2.75rem,8vw,6.5rem)] leading-[0.9] tracking-tight uppercase">
+          <p className="font-serif text-[clamp(2rem,5.5vw,5rem)] leading-[0.95] font-semibold uppercase [font-variation-settings:'opsz'_11]">
             La ciudad no espera.
             <br />
-            <span className="text-brand-lime">Vos tampoco.</span>
+            <span className="text-brand-accent italic">Vos tampoco.</span>
           </p>
-          <div className="mt-12 grid gap-8 border-t border-white/10 py-10 sm:grid-cols-4">
+          <div className="mt-12 grid gap-8 border-t border-brand-ink/10 py-10 sm:grid-cols-4">
             <div className="space-y-3 sm:col-span-2">
               <div className="flex items-center gap-3">
-                <Logo className="w-12 invert dark:invert" />
+                <Logo className="w-12" />
                 <span className="font-display text-2xl tracking-wide uppercase">
-                  Baires<span className="text-brand-lime">Ya</span>
+                  Baires<span className="text-brand-accent">Ya</span>
                 </span>
               </div>
-              <p className="max-w-sm text-sm text-white/60">{siteConfig.description}</p>
+              <p className="max-w-sm text-sm text-brand-ink/60">{siteConfig.description}</p>
             </div>
             <div className="space-y-2 text-sm">
               <p className="font-medium">Colecciones</p>
               {lineValues.map((l) => (
-                <Link key={l} href={`/?linea=${lines[l].slug}#catalogo`} className="block text-white/60 hover:text-white">
+                <Link key={l} href={`/?linea=${lines[l].slug}#catalogo`} className="block text-brand-ink/60 hover:text-brand-ink">
                   {lines[l].label}
                 </Link>
               ))}
-              <Link href="/mi-cuenta" className="block text-white/60 hover:text-white">
+              <Link href="/mi-cuenta" className="block text-brand-ink/60 hover:text-brand-ink">
                 Mi cuenta
               </Link>
             </div>
             <div className="space-y-2 text-sm">
               <p className="font-medium">Contacto</p>
               {wa && (
-                <a href={wa} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-white/60 hover:text-white">
+                <a href={wa} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-brand-ink/60 hover:text-brand-ink">
                   <MessageCircle className="size-4" /> WhatsApp
                 </a>
               )}
-              <p className="text-white/60">Buenos Aires, Argentina</p>
+              <p className="text-brand-ink/60">Buenos Aires, Argentina</p>
             </div>
           </div>
         </div>
-        <div className="border-t border-white/10 py-5 text-center text-xs text-white/40">
+        <div className="border-t border-brand-ink/10 py-5 text-center text-xs text-brand-ink/50">
           © {siteConfig.name} · {siteConfig.tagline}
         </div>
       </footer>
