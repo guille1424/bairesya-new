@@ -5,6 +5,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { assertStaff } from "@/lib/auth/dal";
 import { importRowSchema, readImportFile, type ImportRow } from "@/lib/import";
+import { fillModelFields, modelKey } from "@/lib/domain/import";
+import { linkUploadedPhotos } from "@/lib/services/photos";
 import { toActionError } from "./utils";
 import type { ActionState } from "./types";
 
@@ -47,6 +49,8 @@ export async function previewImport(_prev: PreviewResult, formData: FormData): P
       if (barcode) seen.set(barcode, row);
       return { row, barcode, name, errors, data: result.success ? result.data : null, status: errors.length ? "error" : "create" };
     });
+    const withData = rows.filter((r) => r.data);
+    fillModelFields(withData.map((r) => r.data!)).forEach((data, i) => (withData[i].data = data));
 
     const existing = await prisma.product.findMany({
       where: { barcode: { in: rows.filter((r) => r.status !== "error").map((r) => r.barcode) }, deletedAt: null },
@@ -68,15 +72,41 @@ export async function applyImport(rows: unknown): Promise<ActionState> {
     await assertStaff();
     const parsed = z.array(importRowSchema).min(1).max(MAX_ROWS).safeParse(rows);
     if (!parsed.success) return { error: "Los datos a importar no son válidos. Volvé a cargar el archivo." };
+    const products = fillModelFields(parsed.data);
+
+    // Una variante nueva de un modelo que ya está cargado hereda su descripción y publicación.
+    const pendingNames = [
+      ...new Set(products.filter((r) => r.publicDescription === undefined || r.isPublic === undefined).map((r) => r.name)),
+    ];
+    const siblings = pendingNames.length
+      ? await prisma.product.findMany({
+          where: { deletedAt: null, OR: pendingNames.map((name) => ({ name: { equals: name, mode: "insensitive" } })) },
+          select: { name: true, publicDescription: true, isPublic: true },
+          orderBy: { updatedAt: "desc" },
+        })
+      : [];
+    const models = new Map<string, { publicDescription?: string; isPublic: boolean }>();
+    for (const s of siblings) {
+      const model = models.get(modelKey(s.name)) ?? { isPublic: false };
+      model.publicDescription ??= s.publicDescription ?? undefined;
+      model.isPublic ||= s.isPublic;
+      models.set(modelKey(s.name), model);
+    }
 
     let created = 0;
     let updated = 0;
     await prisma.$transaction(
       async (tx) => {
-        for (const { price, ...row } of parsed.data) {
+        for (const { price, ...row } of products) {
           const data = { ...row, cost: price, deletedAt: null };
           const existing = await tx.product.findUnique({ where: { barcode: row.barcode }, select: { deletedAt: true } });
-          await tx.product.upsert({ where: { barcode: row.barcode }, create: data, update: data });
+          const model = models.get(modelKey(row.name));
+          const create = {
+            ...data,
+            publicDescription: data.publicDescription ?? model?.publicDescription,
+            isPublic: data.isPublic ?? model?.isPublic,
+          };
+          await tx.product.upsert({ where: { barcode: row.barcode }, create, update: data });
           if (existing && !existing.deletedAt) updated++;
           else created++;
         }
@@ -84,9 +114,16 @@ export async function applyImport(rows: unknown): Promise<ActionState> {
       { timeout: 60_000, maxWait: 10_000 },
     );
 
+    // Las fotos no frenan la importación: si Blob falla, se pueden vincular después con el script.
+    const withPhotos = await linkUploadedPhotos(products.map((p) => p.barcode)).catch((err) => {
+      console.error("No se pudieron vincular las fotos de Blob", err);
+      return 0;
+    });
+
     updateTag("catalog");
     refresh();
-    return { ok: true, message: `Importación lista: ${created} productos nuevos y ${updated} actualizados.` };
+    const photos = withPhotos ? ` Se agregaron fotos a ${withPhotos}.` : "";
+    return { ok: true, message: `Importación lista: ${created} productos nuevos y ${updated} actualizados.${photos}` };
   } catch (err) {
     return toActionError(err);
   }

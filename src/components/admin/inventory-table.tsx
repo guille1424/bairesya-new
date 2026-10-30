@@ -22,6 +22,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { deleteProduct, setProductPublic } from "@/lib/actions/products";
 import type { ProductRow } from "@/lib/data/products";
 import { formatMoney } from "@/lib/format";
+import { BulkPhotoUpload } from "./bulk-photo-upload";
 import { ConfirmDialog } from "./confirm-button";
 import { ProductForm, type FilterOptions } from "./product-form";
 
@@ -62,6 +63,7 @@ export function InventoryTable({
             </Link>
           </Button>
         )}
+        <BulkPhotoUpload />
         <Button onClick={() => setEditing({ mode: "create" })}>
           <Plus /> Nuevo producto
         </Button>

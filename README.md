@@ -62,6 +62,19 @@ Las fotos de productos necesitan `BLOB_READ_WRITE_TOKEN` (de un Blob store de Ve
 
 > Si los deploys de preview comparten la base con producción, también aplican migraciones sobre ella. Para evitarlo, conectá una base distinta para el entorno Preview.
 
+## Fotos de productos
+
+Cada foto se llama como el código de barras del producto (columna F de la plantilla): `01000302M.jpg` es la portada y `01000302M_2.jpg` … `_8` las siguientes (también `.png` y `.webp`, hasta 8 MB).
+
+Desde el panel: **Inventario → Subir fotos**, elegir la carpeta, revisar la vista previa y confirmar. Para muchas fotos o desde la terminal, el mismo proceso como script:
+
+```bash
+npm run fotos -- ruta/a/la/carpeta --probar   # muestra qué haría, sin subir nada
+npm run fotos -- ruta/a/la/carpeta            # sube a Vercel Blob (productos/) y las vincula
+```
+
+Necesita `BLOB_READ_WRITE_TOKEN` y `DATABASE_URL` de la base que corresponda. Una foto con el mismo nombre reemplaza a la anterior. Las fotos de códigos que todavía no existen se suben igual y se vinculan solas al importar el Excel. Los productos sin foto muestran el logo. También se pueden subir de a una desde el inventario.
+
 ## Catálogo de muestra
 
 `npm run db:demo` carga 25 modelos de ejemplo de las tres colecciones (70 combinaciones de talle y color) con fotos reales de [Pexels](https://www.pexels.com/license/) en `public/catalogo` (uso comercial gratuito; el detalle de cada foto está en `public/catalogo/CREDITOS.md`). Las fotos de portada están en `public/brand`. Usan códigos `DEMO-…`. Antes de lanzar con productos reales se quitan con:

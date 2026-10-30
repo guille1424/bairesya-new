@@ -22,6 +22,8 @@ const columns = [
   ["stock", "Cantidad en stock (reemplaza la actual)", false],
   ["supplierName", "Proveedor", false],
   ["supplierAddress", "Dirección del proveedor", false],
+  ["isPublic", "Publicar en la tienda: Sí o No", false],
+  ["publicDescription", "Descripción para la tienda", false],
 ] as const;
 
 export default function ImportPage() {
@@ -44,7 +46,9 @@ export default function ImportPage() {
           <CardHeader>
             <CardTitle>Formato del archivo</CardTitle>
             <CardDescription>
-              La primera fila tiene que tener estos encabezados. Si el código ya existe, el producto se actualiza.
+              Una de las primeras filas tiene que tener estos encabezados. Si el código ya existe, el producto se actualiza; las
+              columnas que no estén en el archivo no se modifican. La descripción y &quot;Publicar&quot; alcanza con escribirlas en
+              una fila de cada modelo (mismo nombre).
             </CardDescription>
           </CardHeader>
           <CardContent className="px-0">

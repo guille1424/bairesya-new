@@ -87,6 +87,8 @@ export function ImportWizard() {
                 <TableHead>Producto</TableHead>
                 <TableHead className="text-right">Stock</TableHead>
                 <TableHead className="text-right">Efectivo</TableHead>
+                <TableHead>Tienda</TableHead>
+                <TableHead>Descripción</TableHead>
                 <TableHead>Detalle</TableHead>
               </TableRow>
             </TableHeader>
@@ -98,7 +100,13 @@ export function ImportWizard() {
                   <TableCell className="font-mono text-xs">{r.barcode || "—"}</TableCell>
                   <TableCell className="max-w-56 truncate">{r.name || "—"}</TableCell>
                   <TableCell className="text-right tabular-nums">{r.data?.stock ?? "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.data ? formatMoney(r.data.priceNormal) : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {r.data?.priceNormal !== undefined ? formatMoney(r.data.priceNormal) : "—"}
+                  </TableCell>
+                  <TableCell>{r.data?.isPublic === undefined ? "—" : r.data.isPublic ? "Sí" : "No"}</TableCell>
+                  <TableCell className="max-w-48 truncate text-xs text-muted-foreground" title={r.data?.publicDescription}>
+                    {r.data?.publicDescription ?? "—"}
+                  </TableCell>
                   <TableCell className="text-xs text-destructive">{r.errors.join(" · ")}</TableCell>
                 </TableRow>
               ))}
