@@ -16,7 +16,7 @@ export function StoreHeader({ account }: { account: React.ReactNode }) {
         <BrandLink />
         <nav className="ml-6 hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
           {lineValues.map((l) => (
-            <Link key={l} href={`/?linea=${lines[l].slug}#catalogo`} className="transition-colors hover:text-foreground">
+            <Link key={l} href={`/coleccion/${lines[l].slug}`} className="transition-colors hover:text-foreground">
               {lines[l].label}
             </Link>
           ))}

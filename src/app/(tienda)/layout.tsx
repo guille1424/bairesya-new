@@ -4,6 +4,7 @@ import { MessageCircle } from "lucide-react";
 import { Logo } from "@/components/brand";
 import { CartProvider } from "@/components/store/cart";
 import { CartSheet } from "@/components/store/cart-sheet";
+import { catalogPath } from "@/components/store/catalog";
 import { AccountLink, StoreHeader } from "@/components/store/store-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCustomer } from "@/lib/auth/dal";
@@ -52,7 +53,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
             <div className="space-y-2 text-sm">
               <p className="font-medium">Colecciones</p>
               {lineValues.map((l) => (
-                <Link key={l} href={`/?linea=${lines[l].slug}#catalogo`} className="block text-brand-ink/60 hover:text-brand-ink">
+                <Link key={l} href={catalogPath(l)} className="block text-brand-ink/60 hover:text-brand-ink">
                   {lines[l].label}
                 </Link>
               ))}

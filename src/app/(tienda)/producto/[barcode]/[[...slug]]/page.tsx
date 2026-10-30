@@ -2,41 +2,58 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, MessageCircle, Truck } from "lucide-react";
+import { MessageCircle, Truck } from "lucide-react";
+import { JsonLd } from "@/components/json-ld";
 import { AddToCart } from "@/components/store/add-to-cart";
+import { Breadcrumbs } from "@/components/store/breadcrumbs";
 import { ProductCard } from "@/components/store/product-card";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getPublicProduct, getRelatedProducts, type ProductDetail } from "@/lib/data/catalog";
+import { categoryPath, displayCategory, productPath, productTitle, slugify, variantGroupKey } from "@/lib/domain/seo";
 import { formatMoney } from "@/lib/format";
-import { siteConfig } from "@/lib/site";
+import { lines } from "@/lib/lines";
+import { absoluteUrl, baseOpenGraph, siteConfig } from "@/lib/site";
 import { whatsappLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
-export async function generateMetadata({ params }: PageProps<"/producto/[barcode]">): Promise<Metadata> {
+/** Talles publicados del mismo color: todos se muestran en esta página. */
+function sameColorSizes(product: ProductDetail) {
+  const key = variantGroupKey(product);
+  return product.variants
+    .filter((v) => v.size && variantGroupKey({ name: product.name, color: v.color }) === key)
+    .map((v) => v.size!);
+}
+
+function metaDescription(product: ProductDetail) {
+  if (product.description) return product.description.slice(0, 160);
+  const sizes = sameColorSizes(product);
+  return [
+    `${productTitle(product)}${product.line ? ` de la colección ${lines[product.line].label}` : ""}`,
+    sizes.length > 1 ? `, talles ${sizes.join(", ")}` : product.size ? `, talle ${product.size}` : "",
+    `. ${formatMoney(product.price)} en efectivo en ${siteConfig.name}, Buenos Aires. Pedí por WhatsApp.`,
+  ].join("");
+}
+
+export async function generateMetadata({ params }: PageProps<"/producto/[barcode]/[[...slug]]">): Promise<Metadata> {
   const { barcode } = await params;
   const product = await getPublicProduct(decodeURIComponent(barcode));
   if (!product) return { title: "Producto no encontrado" };
-  const description =
-    product.description?.slice(0, 160) ||
-    `${product.name}${product.size ? ` talle ${product.size}` : ""}${product.color ? `, ${product.color}` : ""}. ${formatMoney(product.price)} en ${siteConfig.name}.`;
+  const title = productTitle(product);
+  const description = metaDescription(product);
   return {
-    title: product.name,
+    title,
     description,
-    alternates: { canonical: `/producto/${product.barcode}` },
-    openGraph: { title: product.name, description, images: product.images.slice(0, 1) },
+    // Los talles del mismo color (y la dirección sin nombre) apuntan a una sola página.
+    alternates: { canonical: productPath({ ...product, barcode: product.canonicalBarcode }) },
+    openGraph: { ...baseOpenGraph, title, description, images: product.images.slice(0, 1) },
   };
 }
 
-export default function ProductPage({ params }: PageProps<"/producto/[barcode]">) {
+export default function ProductPage({ params }: PageProps<"/producto/[barcode]/[[...slug]]">) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 md:py-10">
-      <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
-        <Link href="/">
-          <ChevronLeft /> Volver a la colección
-        </Link>
-      </Button>
       <Suspense fallback={<ProductSkeleton />}>
         <Product params={params} />
       </Suspense>
@@ -62,24 +79,7 @@ async function Product({ params }: { params: Promise<{ barcode: string }> }) {
   const product = await getPublicProduct(decodeURIComponent(barcode));
   if (!product) notFound();
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    sku: product.barcode,
-    image: product.images,
-    description: product.description ?? undefined,
-    color: product.color ?? undefined,
-    size: product.size ?? undefined,
-    brand: { "@type": "Brand", name: siteConfig.name },
-    offers: {
-      "@type": "Offer",
-      priceCurrency: "ARS",
-      price: product.price,
-      availability: product.available > 0 ? "https://schema.org/InStock" : "https://schema.org/BackOrder",
-      url: `${siteConfig.url}/producto/${product.barcode}`,
-    },
-  };
+  const title = productTitle(product);
   const consult = whatsappLink(
     siteConfig.whatsappNumber,
     `¡Hola! Quería consultar por "${product.name}"${product.size ? ` talle ${product.size}` : ""} (${product.barcode}).`,
@@ -87,20 +87,24 @@ async function Product({ params }: { params: Promise<{ barcode: string }> }) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      <JsonLd data={productJsonLd(product)} />
+      <Breadcrumbs
+        items={[
+          ...(product.line ? [{ name: lines[product.line].label, href: `/coleccion/${lines[product.line].slug}` }] : []),
+          ...(product.category ? [{ name: displayCategory(product.category), href: categoryPath(product.category) }] : []),
+          { name: title, href: productPath({ ...product, barcode: product.canonicalBarcode }) },
+        ]}
       />
       <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
         <ProductGallery images={product.images} name={product.name} />
         <div className="flex flex-col gap-6 md:py-4">
           <div className="space-y-2">
             {product.category && (
-              <Link href={`/?category=${encodeURIComponent(product.category)}`} className="text-sm text-muted-foreground hover:underline">
-                {product.category}
+              <Link href={categoryPath(product.category)} className="text-sm text-muted-foreground hover:underline">
+                {displayCategory(product.category)}
               </Link>
             )}
-            <h1 className="text-3xl font-semibold tracking-tight">{product.name}</h1>
+            <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
             <p className="text-2xl font-semibold tabular-nums">{formatMoney(product.price)}</p>
             <p className="text-xs text-muted-foreground">Precio en efectivo. Consultá el precio por transferencia.</p>
           </div>
@@ -154,6 +158,49 @@ async function Product({ params }: { params: Promise<{ barcode: string }> }) {
   );
 }
 
+/**
+ * Datos para Google: precio y stock en el resultado de búsqueda. Si el modelo tiene varios talles o
+ * colores se describe como grupo, así Google entiende que son la misma prenda.
+ */
+function productJsonLd(product: ProductDetail) {
+  type Variant = ProductDetail["variants"][number];
+  const variant = (v: Variant) => ({
+    "@type": "Product",
+    name: [productTitle({ name: product.name, color: v.color }), v.size && `talle ${v.size}`].filter(Boolean).join(" "),
+    sku: v.barcode,
+    image: v.barcode === product.barcode ? product.images.map(absoluteUrl) : v.image ? absoluteUrl(v.image) : undefined,
+    color: v.color ?? undefined,
+    size: v.size ?? undefined,
+    offers: {
+      "@type": "Offer",
+      url: `${siteConfig.url}${productPath({ ...v, name: product.name })}`,
+      priceCurrency: "ARS",
+      price: v.price,
+      availability: v.available > 0 ? "https://schema.org/InStock" : "https://schema.org/BackOrder",
+      itemCondition: "https://schema.org/NewCondition",
+    },
+  });
+  const common = {
+    "@context": "https://schema.org",
+    description: metaDescription(product),
+    brand: { "@type": "Brand", name: siteConfig.name },
+    category: product.category ?? undefined,
+    audience: { "@type": "PeopleAudience", suggestedGender: "female" },
+  };
+  if (product.variants.length <= 1) return { ...common, ...variant(product), name: productTitle(product) };
+
+  const varies = (field: "size" | "color") => new Set(product.variants.map((v) => v[field])).size > 1;
+  return {
+    ...common,
+    "@type": "ProductGroup",
+    name: product.name,
+    url: `${siteConfig.url}${productPath({ ...product, barcode: product.canonicalBarcode })}`,
+    productGroupID: slugify(product.name),
+    variesBy: [varies("size") && "https://schema.org/size", varies("color") && "https://schema.org/color"].filter(Boolean),
+    hasVariant: product.variants.map(variant),
+  };
+}
+
 function Variants({ product }: { product: ProductDetail }) {
   if (product.variants.length <= 1) return null;
   const sizes = [...new Map(product.variants.filter((v) => v.color === product.color).map((v) => [v.size, v])).values()];
@@ -165,7 +212,12 @@ function Variants({ product }: { product: ProductDetail }) {
           <p className="text-sm font-medium">Talle</p>
           <div className="flex flex-wrap gap-2">
             {sizes.map((v) => (
-              <VariantLink key={v.barcode} barcode={v.barcode} active={v.barcode === product.barcode} soldOut={v.available <= 0}>
+              <VariantLink
+                key={v.barcode}
+                href={productPath({ ...v, name: product.name })}
+                active={v.barcode === product.barcode}
+                soldOut={v.available <= 0}
+              >
                 {v.size ?? "Único"}
               </VariantLink>
             ))}
@@ -177,7 +229,12 @@ function Variants({ product }: { product: ProductDetail }) {
           <p className="text-sm font-medium">Color</p>
           <div className="flex flex-wrap gap-2">
             {colors.map((v) => (
-              <VariantLink key={v.barcode} barcode={v.barcode} active={v.barcode === product.barcode} soldOut={v.available <= 0}>
+              <VariantLink
+                key={v.barcode}
+                href={productPath({ ...v, name: product.name })}
+                active={v.barcode === product.barcode}
+                soldOut={v.available <= 0}
+              >
                 {v.color ?? "—"}
               </VariantLink>
             ))}
@@ -188,10 +245,10 @@ function Variants({ product }: { product: ProductDetail }) {
   );
 }
 
-function VariantLink({ barcode, active, soldOut, children }: { barcode: string; active: boolean; soldOut: boolean; children: React.ReactNode }) {
+function VariantLink({ href, active, soldOut, children }: { href: string; active: boolean; soldOut: boolean; children: React.ReactNode }) {
   return (
     <Link
-      href={`/producto/${barcode}`}
+      href={href}
       replace
       scroll={false}
       className={cn(

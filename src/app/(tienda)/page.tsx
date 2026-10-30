@@ -1,21 +1,46 @@
 import { Suspense } from "react";
-import Link from "next/link";
-import { Search } from "lucide-react";
-import { ClearFilters, Pagination, SearchFilter, SelectFilter } from "@/components/admin/url-filters";
+import type { Metadata } from "next";
+import { JsonLd } from "@/components/json-ld";
+import { Catalog, CatalogSkeleton } from "@/components/store/catalog";
 import { Collections, Promises } from "@/components/store/home/collections";
 import { Hero } from "@/components/store/home/hero";
 import { Marquee } from "@/components/store/home/marquee";
-import { ProductCard, ProductGridSkeleton } from "@/components/store/product-card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { getCatalog, getCatalogFilters } from "@/lib/data/catalog";
-import { lineFromSlug, lines, lineValues } from "@/lib/lines";
-import { oneOf, pageParam, param, type SearchParams } from "@/lib/search-params";
-import { cn } from "@/lib/utils";
+import { siteConfig } from "@/lib/site";
+
+// Los filtros (?q=, ?size=…) son la misma página para Google.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
+
+/** Datos de la marca para Google: nombre del sitio en los resultados, logo y contacto. */
+const organization = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "OnlineStore",
+      "@id": `${siteConfig.url}/#tienda`,
+      name: siteConfig.name,
+      url: siteConfig.url,
+      logo: `${siteConfig.url}/icon-512.png`,
+      description: siteConfig.description,
+      slogan: siteConfig.claim,
+      ...(siteConfig.whatsappNumber && { telephone: `+${siteConfig.whatsappNumber}` }),
+      address: { "@type": "PostalAddress", addressLocality: "Buenos Aires", addressCountry: "AR" },
+      areaServed: "Buenos Aires",
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteConfig.url}/#sitio`,
+      name: siteConfig.name,
+      url: siteConfig.url,
+      inLanguage: "es-AR",
+      publisher: { "@id": `${siteConfig.url}/#tienda` },
+    },
+  ],
+};
 
 export default function StoreHome({ searchParams }: PageProps<"/">) {
   return (
     <>
+      <JsonLd data={organization} />
       <Hero />
       <Marquee />
       <Collections />
@@ -30,140 +55,5 @@ export default function StoreHome({ searchParams }: PageProps<"/">) {
         </Suspense>
       </section>
     </>
-  );
-}
-
-function CatalogSkeleton() {
-  return (
-    <div className="space-y-8">
-      <div className="flex gap-2">
-        {[80, 96, 72, 88].map((w) => (
-          <Skeleton key={w} className="h-8 rounded-full" style={{ width: w }} />
-        ))}
-      </div>
-      <ProductGridSkeleton />
-    </div>
-  );
-}
-
-function hrefWith(base: Record<string, string | undefined>, changes: Record<string, string | undefined>) {
-  const params = new URLSearchParams();
-  for (const [k, v] of Object.entries({ ...base, ...changes })) if (v) params.set(k, v);
-  const qs = params.toString();
-  return `/${qs ? `?${qs}` : ""}#catalogo`;
-}
-
-async function Catalog({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const params = await searchParams;
-  const lineSlug = param(params, "linea");
-  const line = lineFromSlug(lineSlug);
-  const query = {
-    q: param(params, "q"),
-    line,
-    category: param(params, "category"),
-    size: param(params, "size"),
-    color: param(params, "color"),
-    sort: oneOf(param(params, "sort"), ["new", "price", "-price"] as const),
-    page: pageParam(params),
-  };
-  const [filters, result] = await Promise.all([getCatalogFilters(line), getCatalog(query)]);
-  const hasFilters = Boolean(query.q || query.line || query.category || query.size || query.color);
-  const base = { linea: line ? lineSlug : undefined, category: query.category };
-
-  return (
-    <div className="space-y-8">
-      <div className="space-y-4">
-        <nav className="flex flex-wrap gap-2" aria-label="Colecciones">
-          <LineTab href={hrefWith({}, {})} active={!line}>
-            Todo
-          </LineTab>
-          {lineValues.map((l) => (
-            <LineTab key={l} href={hrefWith({}, { linea: lines[l].slug })} active={line === l}>
-              {lines[l].label}
-            </LineTab>
-          ))}
-        </nav>
-        {filters.categories.length > 1 && (
-          <nav className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" aria-label="Categorías">
-            <CategoryChip href={hrefWith(base, { category: undefined })} active={!query.category}>
-              Todas las prendas
-            </CategoryChip>
-            {filters.categories.map((c) => (
-              <CategoryChip key={c} href={hrefWith(base, { category: c })} active={query.category === c}>
-                {c}
-              </CategoryChip>
-            ))}
-          </nav>
-        )}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <SearchFilter placeholder="Buscar prendas" />
-          <div className="grid grid-cols-3 gap-2 sm:flex">
-            <SelectFilter paramKey="size" placeholder="Talle" options={filters.sizes} className="w-full sm:w-28" />
-            <SelectFilter paramKey="color" placeholder="Color" options={filters.colors} className="w-full sm:w-32" />
-            <SelectFilter
-              paramKey="sort"
-              placeholder="Más nuevos"
-              className="w-full sm:w-40"
-              options={[
-                { value: "price", label: "Menor precio" },
-                { value: "-price", label: "Mayor precio" },
-              ]}
-            />
-          </div>
-          <ClearFilters keys={["q", "size", "color", "sort", "category", "linea"]} />
-        </div>
-      </div>
-
-      {result.products.length === 0 ? (
-        <Empty className="border">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <Search />
-            </EmptyMedia>
-            <EmptyTitle>{hasFilters ? "No encontramos prendas con esos filtros" : "Muy pronto, nueva colección"}</EmptyTitle>
-            <EmptyDescription>
-              {hasFilters ? "Probá con otro talle, color o búsqueda." : "Estamos cargando las prendas. Volvé en un rato."}
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      ) : (
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
-          {result.products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      )}
-      {result.pages > 1 && <Pagination page={result.page} pages={result.pages} total={result.total} noun={["prenda", "prendas"]} />}
-    </div>
-  );
-}
-
-function LineTab({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      scroll={false}
-      className={cn(
-        "rounded-full px-3.5 py-1.5 font-display text-base tracking-wide uppercase transition-colors sm:px-5 sm:py-2 sm:text-lg",
-        active ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/70",
-      )}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function CategoryChip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      scroll={false}
-      className={cn(
-        "shrink-0 rounded-full border px-4 py-1.5 text-sm transition-colors",
-        active ? "border-foreground bg-foreground text-background" : "hover:border-foreground/40",
-      )}
-    >
-      {children}
-    </Link>
   );
 }

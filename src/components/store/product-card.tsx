@@ -2,12 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/brand";
 import type { CatalogProduct } from "@/lib/data/catalog";
+import { productPath } from "@/lib/domain/seo";
 import { formatMoney } from "@/lib/format";
 
 export function ProductCard({ product, priority }: { product: CatalogProduct; priority?: boolean }) {
   const soldOut = product.available <= 0;
   return (
-    <Link href={`/producto/${product.barcode}`} className="group flex flex-col gap-3">
+    <Link href={productPath(product)} className="group flex flex-col gap-3">
       <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted">
         {product.image ? (
           <Image

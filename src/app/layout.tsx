@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Anton, Bodoni_Moda, Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
-import { siteConfig } from "@/lib/site";
+import { baseOpenGraph, siteConfig } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,16 +32,12 @@ const bodoni = Bodoni_Moda({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} · ${siteConfig.slogan}`,
+    default: `${siteConfig.name} · ${siteConfig.title}`,
     template: `%s · ${siteConfig.name}`,
   },
   description: siteConfig.description,
   applicationName: siteConfig.name,
-  openGraph: {
-    type: "website",
-    locale: "es_AR",
-    siteName: siteConfig.name,
-  },
+  openGraph: baseOpenGraph,
 };
 
 export const viewport: Viewport = {

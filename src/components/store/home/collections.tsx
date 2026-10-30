@@ -27,7 +27,7 @@ export function Collections() {
           return (
             <Link
               key={line}
-              href={`/?linea=${l.slug}#catalogo`}
+              href={`/coleccion/${l.slug}`}
               className="group relative flex min-h-[30rem] flex-col justify-between overflow-hidden rounded-3xl bg-brand-soft p-6 text-white"
             >
               <Image

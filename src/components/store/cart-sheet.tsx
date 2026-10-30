@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { placeWebOrder, type PlacedOrder } from "@/lib/actions/store";
+import { productPath } from "@/lib/domain/seo";
 import { formatMoney, orderNumber } from "@/lib/format";
 import { webOrderMessage } from "@/lib/messages";
 import { siteConfig } from "@/lib/site";
@@ -93,7 +94,7 @@ function CartLines({ onCheckout }: { onCheckout: () => void }) {
               )}
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
-              <Link href={`/producto/${line.barcode}`} onClick={() => cart.setOpen(false)} className="truncate font-medium hover:underline">
+              <Link href={productPath(line)} onClick={() => cart.setOpen(false)} className="truncate font-medium hover:underline">
                 {line.name}
               </Link>
               <span className="text-xs text-muted-foreground">

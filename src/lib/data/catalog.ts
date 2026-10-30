@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { webReservations } from "@/lib/services/orders";
 import { availableForWeb } from "@/lib/domain/orders";
 import { compareSizes } from "@/lib/sizes";
+import { canonicalVariants, variantGroupKey } from "@/lib/domain/seo";
 import type { LineValue } from "@/lib/lines";
 import type { Prisma } from "@/generated/prisma/client";
 
@@ -164,12 +165,22 @@ export async function getCatalogFilters(line?: LineValue) {
 }
 
 export type ProductDetail = CatalogProduct & {
+  line: LineValue | null;
   description: string | null;
   type: string | null;
   design: string | null;
   images: string[];
+  /** Variante cuya dirección representa a este modelo y color en los buscadores. */
+  canonicalBarcode: string;
   /** Mismo modelo en otros talles/colores (productos con el mismo nombre). */
-  variants: { barcode: string; size: string | null; color: string | null; available: number }[];
+  variants: {
+    barcode: string;
+    size: string | null;
+    color: string | null;
+    available: number;
+    price: number;
+    image: string | null;
+  }[];
 };
 
 export async function getPublicProduct(barcode: string): Promise<ProductDetail | null> {
@@ -181,6 +192,7 @@ export async function getPublicProduct(barcode: string): Promise<ProductDetail |
     where: { ...publicWhere, barcode },
     select: {
       ...cardSelect,
+      line: true,
       type: true,
       design: true,
       publicDescription: true,
@@ -197,14 +209,18 @@ export async function getPublicProduct(barcode: string): Promise<ProductDetail |
   const [main] = await withAvailability([{ ...product, images: product.images.slice(0, 1) }]);
   const variants = await withAvailability(siblings);
 
+  const canonical = canonicalVariants(variants).find((v) => variantGroupKey(v) === variantGroupKey(product));
+
   return {
     ...main,
+    line: product.line,
     description: product.publicDescription,
     type: product.type,
     design: product.design,
     images: product.images.map((i) => i.url),
+    canonicalBarcode: canonical?.barcode ?? product.barcode,
     variants: variants
-      .map((v) => ({ barcode: v.barcode, size: v.size, color: v.color, available: v.available }))
+      .map((v) => ({ barcode: v.barcode, size: v.size, color: v.color, available: v.available, price: v.price, image: v.image }))
       .sort((a, b) => compareSizes(a.size, b.size)),
   };
 }
@@ -231,5 +247,45 @@ export async function getSitemapProducts() {
   "use cache";
   cacheLife("hours");
   cacheTag("catalog");
-  return prisma.product.findMany({ where: publicWhere, select: { barcode: true, updatedAt: true } });
+  return prisma.product.findMany({
+    where: publicWhere,
+    select: {
+      barcode: true,
+      name: true,
+      color: true,
+      updatedAt: true,
+      images: { select: { url: true }, orderBy: { position: "asc" } },
+    },
+  });
+}
+
+export type FeedProduct = CatalogProduct & {
+  line: LineValue | null;
+  description: string | null;
+  images: string[];
+};
+
+/** Todas las variantes publicadas, para el listado de Google Merchant Center. */
+export async function getFeedProducts(): Promise<FeedProduct[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("catalog");
+
+  const products = await prisma.product.findMany({
+    where: publicWhere,
+    select: {
+      ...cardSelect,
+      line: true,
+      publicDescription: true,
+      images: { select: { url: true }, orderBy: { position: "asc" } },
+    },
+    orderBy: [{ name: "asc" }, { barcode: "asc" }],
+  });
+  const withStock = await withAvailability(products);
+  return products.map((p, i) => ({
+    ...withStock[i],
+    line: p.line,
+    description: p.publicDescription,
+    images: p.images.map((img) => img.url),
+  }));
 }

@@ -56,7 +56,7 @@ export function Hero() {
             return (
               <Link
                 key={line}
-                href={`/?linea=${l.slug}#catalogo`}
+                href={`/coleccion/${l.slug}`}
                 className={cn(
                   "group relative flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-2xl bg-brand-soft p-3 sm:p-4 lg:aspect-auto",
                   i === 0 && "lg:col-span-3 lg:row-span-4",
