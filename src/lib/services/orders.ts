@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 import {
   OrderError,
+  assertDeliverableNow,
   assertTransition,
   buildLines,
   linesTotal,
@@ -83,6 +84,7 @@ export async function createPosOrder(input: PosOrderInput) {
   return withRetry(() =>
     prisma.$transaction(async (tx) => {
       const lines = await buildPosLines(tx, input.items);
+      if (input.delivered) assertDeliverableNow(lines);
       return tx.sale.create({
         data: {
           customerId: input.customerId || null,
@@ -90,7 +92,9 @@ export async function createPosOrder(input: PosOrderInput) {
           customerPhone: input.customerPhone || null,
           totalAmount: linesTotal(lines),
           source: "POS",
-          status: "PENDING",
+          channel: input.channel,
+          status: input.delivered ? "DELIVERED" : "PENDING",
+          deliveredAt: input.delivered ? new Date() : null,
           items: { create: lines },
         },
         select: { id: true, number: true },
@@ -163,6 +167,7 @@ export async function createWebOrder(input: WebOrderInput, customerId: string | 
         customerPhone: input.customerPhone || null,
         totalAmount: linesTotal(lines),
         source: "WEB",
+        channel: "WEB",
         status: "WEB_PENDING",
         items: { create: lines },
       },

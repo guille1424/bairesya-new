@@ -11,16 +11,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   currentYearMonth,
   getInventoryValue,
   getMonthlySeries,
   getOperationalCounters,
+  getSalesByChannel,
   getSalesByPriceType,
   getTopProducts,
   monthRange,
 } from "@/lib/data/stats";
-import { formatMoney, formatNumber, priceTypeLabel } from "@/lib/format";
+import { channelLabel, formatMoney, formatNumber, priceTypeLabel } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -44,15 +46,28 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle>Por forma de pago</CardTitle>
-            <CardDescription>Histórico de ventas entregadas.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Suspense fallback={<Skeleton className="h-56 w-full" />}>
-              <PaymentBreakdown />
-            </Suspense>
-          </CardContent>
+          <Tabs defaultValue="pago" className="gap-6">
+            <CardHeader>
+              <CardTitle>Ventas por…</CardTitle>
+              <CardDescription>Histórico de ventas entregadas.</CardDescription>
+              <TabsList className="mt-2 w-full">
+                <TabsTrigger value="pago">Forma de pago</TabsTrigger>
+                <TabsTrigger value="canal">Canal</TabsTrigger>
+              </TabsList>
+            </CardHeader>
+            <CardContent>
+              <TabsContent value="pago">
+                <Suspense fallback={<Skeleton className="h-56 w-full" />}>
+                  <PaymentBreakdown />
+                </Suspense>
+              </TabsContent>
+              <TabsContent value="canal">
+                <Suspense fallback={<Skeleton className="h-56 w-full" />}>
+                  <ChannelBreakdown />
+                </Suspense>
+              </TabsContent>
+            </CardContent>
+          </Tabs>
         </Card>
       </div>
       <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
@@ -191,23 +206,25 @@ async function MonthlyChart() {
   return <SalesChart data={series} />;
 }
 
-async function PaymentBreakdown() {
-  const { byType, total } = await getSalesByPriceType();
-  if (total.units === 0) return <p className="py-10 text-center text-sm text-muted-foreground">Todavía no hay ventas entregadas.</p>;
-  const colors = { NORMAL: "bg-chart-1", TRANSFER: "bg-chart-2", CUSTOM: "bg-chart-3" } as const;
+type BreakdownRow = { key: string; label: string; units: number; revenue: number; profit: number; color: string };
+
+function Breakdown({ rows }: { rows: BreakdownRow[] }) {
+  const total = rows.reduce((s, r) => s + r.revenue, 0);
+  if (rows.every((r) => r.units === 0)) {
+    return <p className="py-10 text-center text-sm text-muted-foreground">Todavía no hay ventas entregadas.</p>;
+  }
   return (
     <div className="space-y-5">
-      {(Object.keys(byType) as (keyof typeof byType)[]).map((type) => {
-        const row = byType[type];
-        const share = total.revenue > 0 ? (row.revenue / total.revenue) * 100 : 0;
+      {rows.map((row) => {
+        const share = total > 0 ? (row.revenue / total) * 100 : 0;
         return (
-          <div key={type} className="space-y-1.5">
+          <div key={row.key} className="space-y-1.5">
             <div className="flex items-baseline justify-between text-sm">
-              <span className="font-medium">{priceTypeLabel[type]}</span>
+              <span className="font-medium">{row.label}</span>
               <span className="tabular-nums">{formatMoney(row.revenue)}</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted">
-              <div className={`h-full rounded-full ${colors[type]}`} style={{ width: `${share}%` }} />
+              <div className={`h-full rounded-full ${row.color}`} style={{ width: `${share}%` }} />
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>{formatNumber(row.units)} prendas</span>
@@ -218,9 +235,43 @@ async function PaymentBreakdown() {
       })}
       <div className="flex justify-between border-t pt-3 text-sm font-medium">
         <span>Total</span>
-        <span className="tabular-nums">{formatMoney(total.revenue)}</span>
+        <span className="tabular-nums">{formatMoney(total)}</span>
       </div>
     </div>
+  );
+}
+
+async function PaymentBreakdown() {
+  const { byType } = await getSalesByPriceType();
+  const colors = { NORMAL: "bg-chart-1", TRANSFER: "bg-chart-2", CUSTOM: "bg-chart-3" } as const;
+  return (
+    <Breakdown
+      rows={(Object.keys(byType) as (keyof typeof byType)[]).map((type) => ({
+        key: type,
+        label: priceTypeLabel[type],
+        ...byType[type],
+        color: colors[type],
+      }))}
+    />
+  );
+}
+
+async function ChannelBreakdown() {
+  const byChannel = await getSalesByChannel();
+  const colors = {
+    IN_PERSON: "bg-chart-1",
+    WHATSAPP: "bg-chart-2",
+    INSTAGRAM: "bg-chart-3",
+    WEB: "bg-chart-4",
+    OTHER: "bg-chart-5",
+  } as const;
+  return (
+    <Breakdown
+      rows={(Object.keys(byChannel) as (keyof typeof byChannel)[])
+        // "Otro" solo aparece si tiene ventas (incluye los pedidos de caja anteriores al registro de canal).
+        .filter((c) => c !== "OTHER" || byChannel[c].units > 0)
+        .map((c) => ({ key: c, label: channelLabel[c], ...byChannel[c], color: colors[c] }))}
+    />
   );
 }
 

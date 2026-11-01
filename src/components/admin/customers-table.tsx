@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { MessageCircle, MoreHorizontal, Pencil, Plus, Trash2, UserRound, Users } from "lucide-react";
+import Link from "next/link";
+import { ClipboardList, MessageCircle, MoreHorizontal, Pencil, Plus, Trash2, UserRound, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -94,7 +95,15 @@ export function CustomersTable({ customers, hasFilters }: { customers: CustomerR
                       <div className="text-sm">{c.phone ?? "—"}</div>
                       {c.email && <div className="text-xs text-muted-foreground">{c.email}</div>}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">{c.orders}</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {c.orders > 0 ? (
+                        <Link href={`/admin/pedidos?cliente=${c.id}`} className="hover:underline">
+                          {c.orders}
+                        </Link>
+                      ) : (
+                        0
+                      )}
+                    </TableCell>
                     <TableCell className="hidden text-right tabular-nums sm:table-cell">{formatMoney(c.spent)}</TableCell>
                     <TableCell className="hidden text-right text-muted-foreground lg:table-cell">
                       {c.lastOrderAt ? formatDate(c.lastOrderAt) : "—"}
@@ -115,6 +124,11 @@ export function CustomersTable({ customers, hasFilters }: { customers: CustomerR
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/admin/pedidos?cliente=${c.id}`}>
+                                <ClipboardList /> Ver pedidos
+                              </Link>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setEditing({ mode: "edit", customer: c })}>
                               <Pencil /> Editar
                             </DropdownMenuItem>

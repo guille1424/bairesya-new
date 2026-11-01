@@ -1,7 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { verifyStaff } from "@/lib/auth/dal";
-import type { Prisma, SaleStatus } from "@/generated/prisma/client";
+import type { Prisma, SaleChannel, SaleStatus } from "@/generated/prisma/client";
 
 export async function countWebPending() {
   await verifyStaff();
@@ -30,6 +30,7 @@ export type OrderRow = {
   cancelledAt: string | null;
   totalAmount: number;
   source: "WEB" | "POS";
+  channel: SaleChannel;
   status: SaleStatus;
   items: {
     id: string;
@@ -54,6 +55,7 @@ const orderSelect = {
   cancelledAt: true,
   totalAmount: true,
   source: true,
+  channel: true,
   status: true,
   customer: { select: { phone: true } },
   items: {
@@ -82,6 +84,7 @@ function toOrderRow(o: Prisma.SaleGetPayload<{ select: typeof orderSelect }>): O
     cancelledAt: o.cancelledAt?.toISOString() ?? null,
     totalAmount: Number(o.totalAmount),
     source: o.source,
+    channel: o.channel,
     status: o.status,
     items: o.items.map((i) => ({
       id: i.id,
@@ -102,15 +105,18 @@ export const ORDERS_PAGE_SIZE = 20;
 export async function listOrders({
   status,
   q,
+  customerId,
   page = 1,
 }: {
   status?: SaleStatus[];
   q?: string;
+  customerId?: string;
   page?: number;
 }) {
   await verifyStaff();
   const where: Prisma.SaleWhereInput = {};
   if (status?.length) where.status = { in: status };
+  if (customerId) where.customerId = customerId;
   if (q) {
     const n = Number(q.replace(/^#/, ""));
     where.OR = [
@@ -132,9 +138,13 @@ export async function listOrders({
   return { orders: orders.map(toOrderRow), total, page, pages: Math.max(1, Math.ceil(total / ORDERS_PAGE_SIZE)) };
 }
 
-export async function orderCounts() {
+export async function orderCounts(customerId?: string) {
   await verifyStaff();
-  const rows = await prisma.sale.groupBy({ by: ["status"], _count: { _all: true } });
+  const rows = await prisma.sale.groupBy({
+    by: ["status"],
+    where: customerId ? { customerId } : undefined,
+    _count: { _all: true },
+  });
   const counts: Record<SaleStatus, number> = { WEB_PENDING: 0, PENDING: 0, DELIVERED: 0, CANCELLED: 0 };
   for (const r of rows) counts[r.status] = r._count._all;
   return counts;

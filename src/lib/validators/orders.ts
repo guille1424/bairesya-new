@@ -7,10 +7,16 @@ export const posItemSchema = z.object({
   customPrice: z.coerce.number().min(0).nullish(),
 });
 
+/** Canales que se eligen en caja (WEB solo lo asigna la tienda). */
+export const posChannels = ["IN_PERSON", "WHATSAPP", "INSTAGRAM", "OTHER"] as const;
+
 export const posOrderSchema = z.object({
   customerId: z.string().nullish(),
   customerName: z.string().trim().min(1, "Elegí o cargá un cliente"),
   customerPhone: z.string().trim().nullish(),
+  channel: z.enum(posChannels).default("IN_PERSON"),
+  /** Venta cerrada en el momento: se registra directamente como entregada. */
+  delivered: z.boolean().default(false),
   items: z.array(posItemSchema).min(1, "Agregá al menos una prenda"),
 });
 

@@ -100,7 +100,11 @@ export async function submitPosOrder(payload: unknown): Promise<PosSubmitResult>
       ok: true,
       orderId: result.id,
       orderNumber: result.number,
-      message: existingOrderId ? "Prendas agregadas al pedido." : "Pedido creado.",
+      message: existingOrderId
+        ? "Prendas agregadas al pedido."
+        : order.delivered
+          ? "Venta registrada como entregada."
+          : "Pedido creado.",
     };
   } catch (err) {
     return toActionError(err);

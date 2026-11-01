@@ -61,6 +61,12 @@ export async function listCustomers({ q, page = 1 }: { q?: string; page?: number
   return { customers: rows, total, page, pages: Math.max(1, Math.ceil(total / CUSTOMERS_PAGE_SIZE)) };
 }
 
+export async function getCustomerName(id: string) {
+  await verifyStaff();
+  const customer = await prisma.customer.findUnique({ where: { id }, select: { name: true } });
+  return customer?.name ?? null;
+}
+
 /** Lista corta para el selector de clientes en caja. */
 export async function customerOptions() {
   await verifyStaff();

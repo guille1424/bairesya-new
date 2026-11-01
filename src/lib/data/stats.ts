@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { verifyAdmin } from "@/lib/auth/dal";
 
 type PriceType = "NORMAL" | "TRANSFER" | "CUSTOM";
+export const channels = ["IN_PERSON", "WHATSAPP", "INSTAGRAM", "WEB", "OTHER"] as const;
+type Channel = (typeof channels)[number];
 
 /** Inicio de mes en hora de Buenos Aires (UTC-3, sin horario de verano). */
 function monthStart(year: number, month: number) {
@@ -51,6 +53,27 @@ export async function getSalesByPriceType(from?: Date, to?: Date) {
     { units: 0, revenue: 0, cost: 0, profit: 0 },
   );
   return { byType: result, total };
+}
+
+/** Ventas entregadas por canal (con el costo del momento de la venta). */
+export async function getSalesByChannel(from?: Date, to?: Date) {
+  await verifyAdmin();
+  const rows = await prisma.$queryRaw<{ channel: Channel; orders: number; units: number; revenue: number; cost: number }[]>`
+    SELECT s.channel,
+      COUNT(DISTINCT s.id)::int AS orders,
+      COALESCE(SUM(i.quantity), 0)::int AS units,
+      COALESCE(SUM(i."priceAtSale" * i.quantity), 0)::float8 AS revenue,
+      COALESCE(SUM(i."costAtSale" * i.quantity), 0)::float8 AS cost
+    FROM "SaleItem" i JOIN "Sale" s ON s.id = i."saleId"
+    WHERE s.status = 'DELIVERED'
+      AND (${from ?? null}::timestamptz IS NULL OR s.date >= ${from ?? null}::timestamptz)
+      AND (${to ?? null}::timestamptz IS NULL OR s.date < ${to ?? null}::timestamptz)
+    GROUP BY s.channel`;
+  const result = Object.fromEntries(
+    channels.map((c) => [c, { orders: 0, units: 0, revenue: 0, cost: 0, profit: 0 }]),
+  ) as Record<Channel, { orders: number; units: number; revenue: number; cost: number; profit: number }>;
+  for (const r of rows) result[r.channel] = { ...r, profit: r.revenue - r.cost };
+  return result;
 }
 
 /** Ingresos y ganancia de los últimos 12 meses (pedidos entregados). */

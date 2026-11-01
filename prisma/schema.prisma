@@ -24,6 +24,15 @@ enum OrderSource {
   POS
 }
 
+/// Por dónde llegó la venta (para comparar canales en el dashboard).
+enum SaleChannel {
+  WEB
+  IN_PERSON
+  WHATSAPP
+  INSTAGRAM
+  OTHER
+}
+
 /// Colección de la tienda: para qué momento del día es la prenda.
 enum Line {
   DEPORTIVA
@@ -113,6 +122,7 @@ model Sale {
   date          DateTime    @default(now())
   totalAmount   Decimal     @db.Decimal(12, 2)
   source        OrderSource @default(POS)
+  channel       SaleChannel @default(IN_PERSON)
   status        SaleStatus  @default(PENDING)
   deliveredAt   DateTime?
   cancelledAt   DateTime?

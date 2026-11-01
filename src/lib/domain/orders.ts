@@ -85,7 +85,14 @@ export function availableForWeb(stock: number, reservedByWebOrders: number) {
   return Math.max(0, stock - reservedByWebOrders);
 }
 
-export type OrderStatusValue = "WEB_PENDING" | "PENDING" | "DELIVERED" | "CANCELLED";
+/** Una venta se puede cerrar en el momento solo si todas las prendas están en stock. */
+export function assertDeliverableNow(lines: Pick<OrderLine, "isPreOrder">[]) {
+  if (lines.some((l) => l.isPreOrder)) {
+    throw new OrderError("Hay prendas sin stock: no se puede entregar en el momento. Confirmalo como pedido pendiente.");
+  }
+}
+
+export type OrderStatusValue ="WEB_PENDING" | "PENDING" | "DELIVERED" | "CANCELLED";
 
 /** Transiciones de estado permitidas. */
 export const transitions: Record<string, OrderStatusValue[]> = {

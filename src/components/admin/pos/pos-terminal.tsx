@@ -22,24 +22,29 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { Field, FieldContent, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { searchPosProducts, submitPosOrder, type PosProduct } from "@/lib/actions/pos";
 import type { SavedCustomer } from "@/lib/actions/customers";
-import { formatMoney, orderNumber, priceTypeLabel } from "@/lib/format";
+import { channelLabel, formatMoney, orderNumber, priceTypeLabel } from "@/lib/format";
 import { createPersistentStore } from "@/lib/persistent-store";
 import { cn } from "@/lib/utils";
+import { posChannels } from "@/lib/validators/orders";
 import { BarcodeScannerDialog } from "../barcode-scanner";
 import { CustomerForm } from "../customer-form";
 
 type PriceType = "NORMAL" | "TRANSFER" | "CUSTOM";
+type Channel = (typeof posChannels)[number];
 type CartItem = PosProduct & { quantity: number; priceType: PriceType; customPrice: number | null };
 type CustomerOption = { id: string; name: string; phone: string | null };
 type OrderOption = { id: string; number: number; customerName: string; totalAmount: number };
@@ -69,6 +74,8 @@ export function PosTerminal({ customers: initialCustomers, orders }: { customers
   const [customer, setCustomer] = useState<{ id: string | null; name: string; phone: string | null } | null>(null);
   const [existingOrder, setExistingOrder] = useState<OrderOption | null>(null);
   const [newCustomerOpen, setNewCustomerOpen] = useState(false);
+  const [channel, setChannel] = useState<Channel>("IN_PERSON");
+  const [delivered, setDelivered] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const focusInput = () => setTimeout(() => inputRef.current?.focus(), 0);
@@ -129,6 +136,8 @@ export function PosTerminal({ customers: initialCustomers, orders }: { customers
     return { byType, units, preOrderUnits, total: byType.NORMAL + byType.TRANSFER + byType.CUSTOM };
   }, [cart]);
 
+  // Con prendas en pre-pedido la venta no se puede cerrar en el momento.
+  const deliverNow = mode === "new" && delivered && totals.preOrderUnits === 0;
   const invalidCustom = cart.find((i) => i.priceType === "CUSTOM" && !(i.customPrice && i.customPrice > 0));
   const canSubmit =
     cart.length > 0 && !invalidCustom && (mode === "new" ? customer !== null : existingOrder !== null) && !submitting;
@@ -141,6 +150,8 @@ export function PosTerminal({ customers: initialCustomers, orders }: { customers
         customerId: mode === "new" ? customer?.id : null,
         customerName: mode === "new" ? customer?.name ?? "" : existingOrder?.customerName ?? "",
         customerPhone: mode === "new" ? customer?.phone : null,
+        channel,
+        delivered: deliverNow,
         items: cart.map((i) => ({
           barcode: i.barcode,
           quantity: i.quantity,
@@ -153,7 +164,10 @@ export function PosTerminal({ customers: initialCustomers, orders }: { customers
         return;
       }
       toast.success(`${result.message} ${orderNumber(result.orderNumber!)}`, {
-        action: { label: "Ver pedidos", onClick: () => router.push("/admin/pedidos") },
+        action: {
+          label: "Ver pedidos",
+          onClick: () => router.push(deliverNow ? "/admin/pedidos?estado=entregados" : "/admin/pedidos"),
+        },
       });
       setCart([]);
       setCustomer(null);
@@ -366,6 +380,44 @@ export function PosTerminal({ customers: initialCustomers, orders }: { customers
               />
             )}
 
+            {mode === "new" && (
+              <>
+                <Field>
+                  <FieldLabel>Canal de venta</FieldLabel>
+                  <Select value={channel} onValueChange={(v) => setChannel(v as Channel)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {posChannels.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {channelLabel[c]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field orientation="horizontal" data-disabled={totals.preOrderUnits > 0 || undefined}>
+                  <Checkbox
+                    id="pos-delivered"
+                    checked={deliverNow}
+                    disabled={totals.preOrderUnits > 0}
+                    onCheckedChange={(v) => setDelivered(v === true)}
+                  />
+                  <FieldContent>
+                    <FieldLabel htmlFor="pos-delivered" className="font-normal">
+                      Entregado y cobrado en el momento
+                    </FieldLabel>
+                    <FieldDescription className="text-xs">
+                      {totals.preOrderUnits > 0
+                        ? "No disponible: hay prendas sin stock."
+                        : "Se registra como venta entregada y ya cuenta en el dashboard."}
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+              </>
+            )}
+
             <Separator />
 
             <dl className="space-y-1.5 text-sm">
@@ -394,7 +446,7 @@ export function PosTerminal({ customers: initialCustomers, orders }: { customers
           <CardFooter className="flex-col gap-2">
             <Button size="lg" className="w-full" disabled={!canSubmit} onClick={submit}>
               {submitting ? <Spinner /> : <Check />}
-              {mode === "new" ? "Confirmar pedido" : "Agregar al pedido"}
+              {mode === "existing" ? "Agregar al pedido" : deliverNow ? "Registrar venta" : "Confirmar pedido"}
             </Button>
             <Button variant="link" size="sm" asChild>
               <Link href="/admin/pedidos">Ver pedidos pendientes</Link>

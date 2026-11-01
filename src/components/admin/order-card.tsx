@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Ban, Check, CheckCheck, ImageOff, MessageCircle, Store, Globe, X } from "lucide-react";
+import { AtSign, Ban, Check, CheckCheck, CircleHelp, Globe, ImageOff, MessageCircle, Store, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +14,7 @@ import {
 } from "@/lib/actions/orders";
 import type { ActionState } from "@/lib/actions/types";
 import type { OrderRow } from "@/lib/data/orders";
-import { formatDate, formatMoney, orderNumber, priceTypeLabel, statusLabel } from "@/lib/format";
+import { channelLabel, formatDate, formatMoney, orderNumber, priceTypeLabel, statusLabel } from "@/lib/format";
 import { orderReadyMessage } from "@/lib/messages";
 import { whatsappLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,14 @@ const statusStyles: Record<OrderRow["status"], string> = {
   CANCELLED: "bg-muted text-muted-foreground",
 };
 
+const channelIcons: Record<OrderRow["channel"], React.ComponentType<{ className?: string }>> = {
+  WEB: Globe,
+  IN_PERSON: Store,
+  WHATSAPP: MessageCircle,
+  INSTAGRAM: AtSign,
+  OTHER: CircleHelp,
+};
+
 export function StatusBadge({ status }: { status: OrderRow["status"] }) {
   return <Badge className={cn("border-0", statusStyles[status])}>{statusLabel[status]}</Badge>;
 }
@@ -36,6 +44,7 @@ type Pending = { title: string; description: string; confirm: string; destructiv
 export function OrderCard({ order }: { order: OrderRow }) {
   const [confirm, setConfirm] = useState<Pending | null>(null);
   const units = order.items.reduce((s, i) => s + i.quantity, 0);
+  const ChannelIcon = channelIcons[order.channel];
   const preOrder = order.items.filter((i) => i.isPreOrder).reduce((s, i) => s + i.quantity, 0);
   const wa = whatsappLink(
     order.customerPhone,
@@ -52,8 +61,8 @@ export function OrderCard({ order }: { order: OrderRow }) {
         <CardDescription className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <span>{formatDate(order.date, true)}</span>
           <span className="inline-flex items-center gap-1">
-            {order.source === "WEB" ? <Globe className="size-3.5" /> : <Store className="size-3.5" />}
-            {order.source === "WEB" ? "Tienda online" : "Caja"}
+            <ChannelIcon className="size-3.5" />
+            {channelLabel[order.channel]}
           </span>
           <span>
             {units} prenda{units !== 1 && "s"}

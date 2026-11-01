@@ -35,6 +35,14 @@ export const priceTypeLabel: Record<string, string> = {
   CUSTOM: "Personalizado",
 };
 
+export const channelLabel: Record<string, string> = {
+  WEB: "Tienda online",
+  IN_PERSON: "Presencial",
+  WHATSAPP: "WhatsApp",
+  INSTAGRAM: "Instagram",
+  OTHER: "Otro",
+};
+
 export const statusLabel: Record<string, string> = {
   WEB_PENDING: "Web · por aprobar",
   PENDING: "Pendiente de entrega",

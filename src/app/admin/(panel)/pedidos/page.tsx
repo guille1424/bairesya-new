@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ClipboardList, ShoppingCart } from "lucide-react";
+import { ClipboardList, ShoppingCart, UserRound, X } from "lucide-react";
 import { OrderCard } from "@/components/admin/order-card";
 import { PageHeader } from "@/components/admin/page-header";
 import { TableSkeleton } from "@/components/admin/skeletons";
@@ -9,6 +9,7 @@ import { Pagination, SearchFilter } from "@/components/admin/url-filters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { getCustomerName } from "@/lib/data/customers";
 import { listOrders, orderCounts } from "@/lib/data/orders";
 import { pageParam, param, type SearchParams } from "@/lib/search-params";
 import { cn } from "@/lib/utils";
@@ -46,22 +47,45 @@ export default function OrdersPage({ searchParams }: PageProps<"/admin/pedidos">
 
 async function Orders({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
-  const tab: Tab = (param(params, "estado") as Tab) in tabs ? (param(params, "estado") as Tab) : "pendientes";
+  const customerId = param(params, "cliente");
+  // Desde la ficha de un cliente se quiere ver todo su historial, no solo lo pendiente.
+  const defaultTab: Tab = customerId ? "todos" : "pendientes";
+  const tab: Tab = (param(params, "estado") as Tab) in tabs ? (param(params, "estado") as Tab) : defaultTab;
   const q = param(params, "q");
-  const [counts, result] = await Promise.all([
-    orderCounts(),
-    listOrders({ status: [...tabs[tab].status], q, page: pageParam(params) }),
+  const [counts, result, customerName] = await Promise.all([
+    orderCounts(customerId),
+    listOrders({ status: [...tabs[tab].status], q, customerId, page: pageParam(params) }),
+    customerId ? getCustomerName(customerId) : null,
   ]);
   const countFor = (t: Tab) => tabs[t].status.reduce((s, st) => s + counts[st], 0);
+  const tabHref = (t: Tab) => {
+    const qs = new URLSearchParams();
+    if (t !== defaultTab) qs.set("estado", t);
+    if (customerId) qs.set("cliente", customerId);
+    return qs.size ? `/admin/pedidos?${qs}` : "/admin/pedidos";
+  };
 
   return (
     <div className="flex flex-col gap-4">
+      {customerId && (
+        <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-sm">
+          <UserRound className="size-4 text-muted-foreground" />
+          <span>
+            Pedidos de <span className="font-medium">{customerName ?? "cliente eliminado"}</span>
+          </span>
+          <Button variant="ghost" size="sm" className="ml-auto" asChild>
+            <Link href="/admin/pedidos">
+              <X /> Quitar filtro
+            </Link>
+          </Button>
+        </div>
+      )}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <nav className="inline-flex w-fit rounded-lg bg-muted p-1" aria-label="Estado">
           {(Object.keys(tabs) as Tab[]).map((t) => (
             <Link
               key={t}
-              href={t === "pendientes" ? "/admin/pedidos" : `/admin/pedidos?estado=${t}`}
+              href={tabHref(t)}
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-3 py-1 text-sm font-medium text-muted-foreground transition-colors",
                 t === tab && "bg-background text-foreground shadow-sm",

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   OrderError,
+  assertDeliverableNow,
   assertTransition,
   availableForWeb,
   buildLines,
@@ -83,6 +84,14 @@ describe("transiciones de estado", () => {
     expect(() => assertTransition("deliver", "WEB_PENDING")).toThrow(OrderError);
     expect(() => assertTransition("cancel", "DELIVERED")).toThrow(OrderError);
     expect(() => assertTransition("cancel", "CANCELLED")).toThrow(OrderError);
+  });
+});
+
+describe("assertDeliverableNow", () => {
+  it("permite cerrar en el momento solo si todo está en stock", () => {
+    const lines = buildLines(remera, 1, 2, "NORMAL");
+    expect(() => assertDeliverableNow(lines)).toThrow(OrderError);
+    expect(() => assertDeliverableNow(buildLines(remera, 5, 2, "NORMAL"))).not.toThrow();
   });
 });
 

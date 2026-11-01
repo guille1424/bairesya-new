@@ -1,8 +1,8 @@
 import "server-only";
 import ExcelJS from "exceljs";
 import { prisma } from "@/lib/prisma";
-import { getInventoryValue, getSalesByPriceType, monthRange } from "@/lib/data/stats";
-import { priceTypeLabel } from "@/lib/format";
+import { channels, getInventoryValue, getSalesByChannel, getSalesByPriceType, monthRange } from "@/lib/data/stats";
+import { channelLabel, priceTypeLabel } from "@/lib/format";
 
 const MONEY = '"$"#,##0.00';
 const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -26,7 +26,7 @@ async function soldItems(from?: Date, to?: Date) {
       priceAtSale: true,
       costAtSale: true,
       priceType: true,
-      sale: { select: { date: true, number: true, customerName: true } },
+      sale: { select: { date: true, number: true, customerName: true, channel: true } },
       product: { select: { category: true, size: true, color: true } },
     },
   });
@@ -37,6 +37,7 @@ async function soldItems(from?: Date, to?: Date) {
       fecha: i.sale.date,
       pedido: i.sale.number,
       cliente: i.sale.customerName,
+      canal: channelLabel[i.sale.channel],
       codigo: i.barcode,
       producto: i.name,
       categoria: i.product?.category ?? "",
@@ -58,6 +59,7 @@ function addSoldSheet(workbook: ExcelJS.Workbook, name: string, rows: Awaited<Re
     { header: "Fecha", key: "fecha", width: 12, style: { numFmt: "dd/mm/yyyy" } },
     { header: "Pedido", key: "pedido", width: 9 },
     { header: "Cliente", key: "cliente", width: 22 },
+    { header: "Canal", key: "canal", width: 14 },
     { header: "Código", key: "codigo", width: 16 },
     { header: "Producto", key: "producto", width: 30 },
     { header: "Categoría", key: "categoria", width: 14 },
@@ -76,7 +78,11 @@ function addSoldSheet(workbook: ExcelJS.Workbook, name: string, rows: Awaited<Re
 
 export async function monthlyReport(year: number, month: number) {
   const { from, to } = monthRange(year, month);
-  const [rows, sales] = await Promise.all([soldItems(from, to), getSalesByPriceType(from, to)]);
+  const [rows, sales, byChannel] = await Promise.all([
+    soldItems(from, to),
+    getSalesByPriceType(from, to),
+    getSalesByChannel(from, to),
+  ]);
   const orders = new Set(rows.map((r) => r.pedido)).size;
 
   const workbook = new ExcelJS.Workbook();
@@ -95,6 +101,9 @@ export async function monthlyReport(year: number, month: number) {
     { k: "Ganancia", v: sales.total.profit },
     {},
     ...(["NORMAL", "TRANSFER", "CUSTOM"] as const).map((t) => ({ k: `Ingresos ${priceTypeLabel[t]}`, v: sales.byType[t].revenue })),
+    {},
+    ...channels.map((c) => ({ k: `Ingresos ${channelLabel[c]}`, v: byChannel[c].revenue })),
+    ...channels.map((c) => ({ k: `Ganancia ${channelLabel[c]}`, v: byChannel[c].profit })),
   ]);
   summary.getColumn("v").numFmt = MONEY;
   summary.getCell("B2").numFmt = "@";
@@ -107,9 +116,10 @@ export async function monthlyReport(year: number, month: number) {
 }
 
 export async function fullReport() {
-  const [rows, sales, inventory, products] = await Promise.all([
+  const [rows, sales, byChannel, inventory, products] = await Promise.all([
     soldItems(),
     getSalesByPriceType(),
+    getSalesByChannel(),
     getInventoryValue(),
     prisma.product.findMany({ where: { deletedAt: null }, orderBy: { name: "asc" } }),
   ]);
@@ -130,6 +140,11 @@ export async function fullReport() {
     stats.addRow({ k: `Ventas ${priceTypeLabel[t]}`, u: s.units, r: s.revenue, c: s.cost, p: s.profit });
   }
   stats.addRow({ k: "Total vendido", u: sales.total.units, r: sales.total.revenue, c: sales.total.cost, p: sales.total.profit }).font = { bold: true };
+  stats.addRow({});
+  for (const c of channels) {
+    const s = byChannel[c];
+    stats.addRow({ k: `Canal ${channelLabel[c]}`, u: s.units, r: s.revenue, c: s.cost, p: s.profit });
+  }
   stats.addRow({});
   stats.addRow({ k: "Inventario disponible (a costo)", u: inventory.units, c: inventory.cost });
   stats.addRow({ k: "Inventario a precio efectivo", u: inventory.units, r: inventory.normal, p: inventory.normal - inventory.cost });
